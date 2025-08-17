@@ -1,0 +1,65 @@
+
+
+import React, { useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import Header from "./components/Header";
+import Sidebar from "./components/Sidebar";
+
+
+const SIDEBAR_WIDTH = 260;
+const HEADER_HEIGHT = 54;
+
+const Shell: React.FC = () => {
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 769);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+
+  // Close drawer whenever route changes (mobile-friendly)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 769);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // The ONLY two functions that change the state
+  const openSidebar = () => setSidebarOpen(true);
+  const closeSidebar = () => setSidebarOpen(false);
+
+  return (
+    <>
+      <Header onMenuClick={openSidebar} />
+      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} headerHeight={HEADER_HEIGHT} />
+
+      <main
+        style={{
+          marginTop: HEADER_HEIGHT,
+          marginLeft: isDesktop ? SIDEBAR_WIDTH : 0,
+          padding: "16px",
+          minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+          background: "#fafafc",
+          transition: "margin 0.2s ease",
+        }}
+      >
+        <Routes>
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/dashboard" element={<h2>Dashboard</h2>} />
+          <Route path="/income" element={<h2>Income</h2>} />
+          <Route path="/expense" element={<h2>Expense</h2>} />
+          <Route path="/logout" element={<h2>Logout</h2>} />
+        </Routes>
+      </main>
+    </>
+  );
+};
+
+const App: React.FC = () => (
+  <BrowserRouter>
+    <Shell />
+  </BrowserRouter>
+);
+
+export default App;
