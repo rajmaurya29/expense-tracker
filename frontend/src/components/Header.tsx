@@ -1,22 +1,20 @@
 import React from "react";
 import { MdMenu } from "react-icons/md";
 
-interface HeaderProps {
-  onMenuClick: () => void;
+export interface HeaderProps {
+  onMenuToggle: () => void; // toggles sidebar open/close
+  headerHeight?: number;
 }
 
-const HEADER_HEIGHT = 54;
-
-const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
-    const onMenuClick1=()=>{
-        console.log("hamburger clicked");
-    }
+const Header: React.FC<HeaderProps> = ({ onMenuToggle, headerHeight = 54 }) => {
   return (
     <header
       style={{
         position: "fixed",
-        top: 0, left: 0, right: 0,
-        height: HEADER_HEIGHT,
+        top: 0,
+        left: 0,
+        right: 0,
+        height: headerHeight,
         display: "flex",
         alignItems: "center",
         background: "#fff",
@@ -26,19 +24,21 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       }}
     >
       <button
-        onClick={onMenuClick}
-        className="hamburger"
-        aria-label="Open sidebar"
+        onClick={onMenuToggle}
+        className="hamburger-btn"
+        aria-label="Toggle sidebar"
         style={{
           background: "transparent",
           border: "none",
           color: "#222",
-          width: 40, height: 40,
+          width: 40,
+          height: 40,
           fontSize: 26,
-          display: "none",
-          alignItems: "center", justifyContent: "center",
+          display: "none", // hidden on desktop
+          alignItems: "center",
+          justifyContent: "center",
           cursor: "pointer",
-          zIndex: 310,
+          zIndex: 310, // above overlay
           marginRight: 8,
         }}
       >
@@ -52,7 +52,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       <style>
         {`
           @media (max-width: 768px) {
-            .hamburger { display: inline-flex !important; }
+            .hamburger-btn { display: inline-flex !important; }
           }
         `}
       </style>

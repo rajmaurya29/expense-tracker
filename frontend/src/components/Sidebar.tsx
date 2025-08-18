@@ -4,17 +4,19 @@ import { MdDashboard, MdLogout, MdClose } from "react-icons/md";
 import { BiMoney } from "react-icons/bi";
 import { BsCurrencyDollar } from "react-icons/bs";
 
-interface SidebarProps {
+export interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
-  headerHeight: number;
+  headerHeight?: number;
+  sidebarWidth?: number;
 }
 
-const SIDEBAR_WIDTH = 260;
-
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, headerHeight }) => {
-  const user = { name: "Mike William", avatar: "https://i.pravatar.cc/80?img=3" };
-
+const Sidebar: React.FC<SidebarProps> = ({
+  isOpen,
+  onClose,
+  headerHeight = 54,
+  sidebarWidth = 260,
+}) => {
   const linkBase: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
@@ -27,29 +29,31 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, headerHeight }) => {
     color: "#222",
   };
 
+  const user = { name: "Mike William", avatar: "https://i.pravatar.cc/80?img=3" };
+
   return (
     <>
-      {/* Overlay for mobile */}
+      {/* Overlay (mobile only) */}
       <div
-        className="overlay"
         onClick={onClose}
         style={{
           position: "fixed",
           top: headerHeight,
-          left: 0, right: 0, bottom: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
           background: "rgba(0,0,0,0.15)",
           zIndex: 220,
-          display: "none",
+          display: isOpen ? "block" : "none",
         }}
       />
 
       <aside
-        className="sidebar"
         style={{
           position: "fixed",
           top: headerHeight,
           left: 0,
-          width: SIDEBAR_WIDTH,
+          width: sidebarWidth,
           height: `calc(100vh - ${headerHeight}px)`,
           background: "#fff",
           boxShadow: "2px 0 6px rgba(0,0,0,0.08)",
@@ -59,11 +63,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, headerHeight }) => {
           padding: 16,
           zIndex: 240,
           transition: "transform 0.3s ease",
-          transform: "translateX(0)", // desktop default
+          transform: isOpen ? "translateX(0)" : "translateX(-100%)",
+          willChange: "transform",
         }}
       >
+        {/* Close button (mobile only) */}
         <button
-          className="close-btn"
           onClick={onClose}
           aria-label="Close sidebar"
           style={{
@@ -73,40 +78,77 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, headerHeight }) => {
             cursor: "pointer",
             fontSize: 24,
             marginBottom: 8,
-            display: "none",
+            display: "none", // hidden on desktop
           }}
+          className="drawer-close-btn"
         >
           <MdClose />
         </button>
 
+        {/* User */}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <img
             src={user.avatar}
             alt={user.name}
-            style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover", marginBottom: 8 }}
+            style={{
+              width: 72,
+              height: 72,
+              borderRadius: "50%",
+              objectFit: "cover",
+              marginBottom: 8,
+            }}
           />
           <div style={{ fontWeight: 600, color: "#222" }}>{user.name}</div>
         </div>
 
+        {/* Nav */}
         <nav style={{ width: "100%" }}>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <li style={{ margin: "10px 0" }}>
-              <NavLink to="/dashboard" style={({isActive}) => ({...linkBase, background: isActive ? "#8b5cf6" : "transparent", color: isActive ? "#fff" : "#222"})}>
+              <NavLink
+                to="/dashboard"
+                style={({ isActive }) => ({
+                  ...linkBase,
+                  background: isActive ? "#8b5cf6" : "transparent",
+                  color: isActive ? "#fff" : "#222",
+                })}
+              >
                 <MdDashboard size={20} /> Dashboard
               </NavLink>
             </li>
             <li style={{ margin: "10px 0" }}>
-              <NavLink to="/income" style={({isActive}) => ({...linkBase, background: isActive ? "#8b5cf6" : "transparent", color: isActive ? "#fff" : "#222"})}>
+              <NavLink
+                to="/income"
+                style={({ isActive }) => ({
+                  ...linkBase,
+                  background: isActive ? "#8b5cf6" : "transparent",
+                  color: isActive ? "#fff" : "#222",
+                })}
+              >
                 <BiMoney size={20} /> Income
               </NavLink>
             </li>
             <li style={{ margin: "10px 0" }}>
-              <NavLink to="/expense" style={({isActive}) => ({...linkBase, background: isActive ? "#8b5cf6" : "transparent", color: isActive ? "#fff" : "#222"})}>
+              <NavLink
+                to="/expense"
+                style={({ isActive }) => ({
+                  ...linkBase,
+                  background: isActive ? "#8b5cf6" : "transparent",
+                  color: isActive ? "#fff" : "#222",
+                })}
+              >
                 <BsCurrencyDollar size={20} /> Expense
               </NavLink>
             </li>
             <li style={{ margin: "10px 0" }}>
-              <NavLink to="/logout" style={({isActive}) => ({...linkBase, background: isActive ? "#8b5cf6" : "transparent", color: isActive ? "#fff" : "#222"})}>
+              <NavLink
+                to="/logout"
+                style={({ isActive }) => ({
+                  ...linkBase,
+                  background: isActive ? "#8b5cf6" : "transparent",
+                  color: isActive ? "#fff" : "#222",
+                })}
+              >
                 <MdLogout size={20} /> Logout
               </NavLink>
             </li>
@@ -116,13 +158,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, headerHeight }) => {
         <style>
           {`
             @media (max-width: 768px) {
-              .sidebar { transform: ${isOpen ? "translateX(0)" : "translateX(-100%)"}; }
-              .overlay { display: ${isOpen ? "block" : "none"}; }
-              .close-btn { display: inline-flex; }
+              .drawer-close-btn { display: inline-flex !important; }
             }
             @media (min-width: 769px) {
-              .sidebar { transform: translateX(0) !important; }
-              .overlay, .close-btn { display: none !important; }
+              aside { transform: translateX(0) !important; }
             }
           `}
         </style>
