@@ -1,12 +1,16 @@
 import React from "react";
 import { MdMenu } from "react-icons/md";
+import {  useDispatch } from "react-redux";
+import type { AppDispatch } from "../redux/store";
+import { toggleSidebar } from "../redux/slices/SidebarSlice"
 
 export interface HeaderProps {
-  onMenuToggle: () => void; // toggles sidebar open/close
+  
   headerHeight?: number;
 }
 
-const Header: React.FC<HeaderProps> = ({ onMenuToggle, headerHeight = 54 }) => {
+const Header: React.FC<HeaderProps> = ({  headerHeight = 54 }) => {
+    const dispatch=useDispatch<AppDispatch>();
   return (
     <header
       style={{
@@ -24,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle, headerHeight = 54 }) => {
       }}
     >
       <button
-        onClick={onMenuToggle}
+        onClick={()=>dispatch(toggleSidebar())}
         className="hamburger-btn"
         aria-label="Toggle sidebar"
         style={{

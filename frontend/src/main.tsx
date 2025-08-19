@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import {store} from "./redux/store.ts"
+import { Provider } from 'react-redux'
 // import './bootstrap.min.css';
 // import "bootstrap/dist/css/bootstrap.min.css";
 // import "bootswatch/dist/flatly/bootstrap.min.css"; // example theme
@@ -9,6 +11,8 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <Provider store={store}>
     <App />
+    </Provider>
   </StrictMode>,
 )

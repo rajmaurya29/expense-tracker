@@ -3,20 +3,26 @@ import { NavLink } from "react-router-dom";
 import { MdDashboard, MdLogout, MdClose } from "react-icons/md";
 import { BiMoney } from "react-icons/bi";
 import { BsCurrencyDollar } from "react-icons/bs";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState,AppDispatch } from "../redux/store";
+import { closeSidebar } from "../redux/slices/SidebarSlice";
 
 export interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
+  // isOpen: boolean;
+  // onClose: () => void;
   headerHeight?: number;
   sidebarWidth?: number;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
-  isOpen,
-  onClose,
+  // isOpen,
+  // onClose,
   headerHeight = 54,
   sidebarWidth = 260,
 }) => {
+  const isOpen=useSelector((state:RootState)=>state.toggleSidbar.isOpen);
+  const dispatch=useDispatch<AppDispatch>();
+
   const linkBase: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
@@ -35,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* Overlay (mobile only) */}
       <div
-        onClick={onClose}
+        onClick={()=>dispatch(closeSidebar())}
         style={{
           position: "fixed",
           top: headerHeight,
@@ -69,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       >
         {/* Close button (mobile only) */}
         <button
-          onClick={onClose}
+          onClick={()=>dispatch(closeSidebar())}
           aria-label="Close sidebar"
           style={{
             alignSelf: "flex-end",
