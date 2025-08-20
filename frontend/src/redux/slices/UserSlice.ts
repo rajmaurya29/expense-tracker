@@ -1,0 +1,78 @@
+import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
+import axios from 'axios'
+
+const loginInfoFromStorage=localStorage.getItem("userInfo")?
+JSON.parse(localStorage.getItem("userInfo")!):null;
+
+
+export const loginUser=createAsyncThunk(
+    "loginUser",async ({username,password}:{username:string,password:string},thunkAPI)=>{
+        try{
+            const response= await axios.post("http://127.0.0.1:8000/users/login/",{"username":username,"password":password},
+               { withCredentials:true}
+            )
+            return response.data;
+        }
+        catch(error:any){
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    
+}
+)
+export const logoutUser=createAsyncThunk(
+    "logoutUser",async (_,thunkAPI)=>{
+        try{
+            const response= await axios.post("http://127.0.0.1:8000/users/logout/",{},
+               { withCredentials:true}
+            )
+            return response.data;
+        }
+        catch(error:any){
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    
+}
+)
+interface loginState{
+    userInfo:any,
+    loading:boolean,
+    error:any
+}
+
+const initialState:loginState={
+    userInfo:loginInfoFromStorage,
+    loading:false,
+    error:null
+};
+
+const UserSlice=createSlice({
+    name:"User",
+    initialState,
+    reducers:{},
+    extraReducers:(builder)=>{
+        builder.addCase(loginUser.pending,(state)=>{
+            state.loading=true,
+            state.error=null
+        });
+        builder.addCase(loginUser.fulfilled,(state,action)=>{
+            state.loading=false,
+            state.userInfo=action.payload
+            const item=action.payload
+            let itemList={email:item['email'],id:item['id'],isAdmin:item['isAdmin'],name:item['name'],username:item['username'],_id:item['_id']}
+            localStorage.setItem("userInfo",JSON.stringify(itemList))
+            // console.log("action-",action.payload)
+        })
+        builder.addCase(loginUser.rejected,(state,action)=>{
+            state.loading=false,
+            state.error=action.payload
+        })
+        builder.addCase(logoutUser.fulfilled,(state)=>{
+            state.userInfo=null,
+            state.loading=false,
+            state.error=null,
+            localStorage.removeItem("userInfo")
+        })
+    }
+})
+
+export default UserSlice.reducer
