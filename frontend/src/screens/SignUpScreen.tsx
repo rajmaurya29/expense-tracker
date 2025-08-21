@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 // import "./index.css"; // uses the same classes as the login screen
 import { useNavigate } from "react-router-dom";
+import { useDispatch,useSelector } from "react-redux";
+import type { RootState,AppDispatch } from "../redux/store";
+import { loginUser } from "../redux/slices/UserSlice";
 
 const SignUpScreen: React.FC = () => {
   const navigate=useNavigate();
@@ -14,7 +17,7 @@ const SignUpScreen: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    const dispatch=useDispatch<AppDispatch>();
     if (!name.trim()) {
       setError("Please enter your name.");
       return;
@@ -27,7 +30,16 @@ const SignUpScreen: React.FC = () => {
     setSubmitting(true);
     try {
       // Demo-only: simulate async signup
-      await new Promise((r) => setTimeout(r, 900));
+      await new Promise((r) => setTimeout(r, 800));
+      try{
+                // const response= await axios.post("https://ecommerce-1-pt17.onrender.com/api/users/register/",{"name":name,"email":email,"password":password},{withCredentials:true})
+                // console.log(response.data);
+                dispatch(loginUser({"username":email,"password":password}))
+               
+            }
+            catch(error:any){
+                console.log(error.value)
+            }
       console.log("Signup:", { name, email, password });
     } catch (err: any) {
       setError(err?.message || "Signup failed. Please try again.");
