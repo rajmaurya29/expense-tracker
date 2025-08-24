@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { loginUser } from "../redux/slices/UserSlice";
+import axios from "axios";
 
 const SignUpScreen: React.FC = () => {
   const navigate=useNavigate();
@@ -13,11 +14,12 @@ const SignUpScreen: React.FC = () => {
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+    const dispatch=useDispatch<AppDispatch>();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const dispatch=useDispatch<AppDispatch>();
+    // console.log("skld");
+    // const dispatch=useDispatch<AppDispatch>();
     if (!name.trim()) {
       setError("Please enter your name.");
       return;
@@ -26,25 +28,26 @@ const SignUpScreen: React.FC = () => {
       setError("Passwords do not match.");
       return;
     }
-
+// console.log("skld");
     setSubmitting(true);
     try {
       // Demo-only: simulate async signup
       await new Promise((r) => setTimeout(r, 800));
-      try{
-                // const response= await axios.post("https://ecommerce-1-pt17.onrender.com/api/users/register/",{"name":name,"email":email,"password":password},{withCredentials:true})
+      try{  
+                const response= await axios.post("http://127.0.0.1:8000/users/register/",{"name":name,"email":email,"password":password},{withCredentials:true})
                 // console.log(response.data);
-                dispatch(loginUser({"username":email,"password":password}))
+                dispatch(loginUser({"email":email,"password":password}))
                
             }
             catch(error:any){
                 console.log(error.value)
             }
       console.log("Signup:", { name, email, password });
-    } catch (err: any) {
+    } catch (err: any) {  
       setError(err?.message || "Signup failed. Please try again.");
     } finally {
       setSubmitting(false);
+      navigate('/dashboard');
     }
   };
 

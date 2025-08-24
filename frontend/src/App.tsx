@@ -7,6 +7,9 @@ import type { AppDispatch } from "./redux/store";
 import { closeSidebar } from "./redux/slices/SidebarSlice"
 import LoginScreen from './screens/LoginScreen'
 import SignUpScreen from './screens/SignUpScreen'
+import LogoutScreen from "./screens/LogoutScreen";
+import IncomeScreen from "./screens/IncomeScreen";
+import ExpenseScreen from "./screens/ExpenseScreen";
 
 const HEADER_HEIGHT = 54;
 const SIDEBAR_WIDTH = 260;
@@ -49,7 +52,12 @@ const Shell: React.FC = () => {
       >
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
           <Route path="/login" element={<LoginScreen/>} />
+          <Route path="/logout" element={<LogoutScreen/>} />
+          <Route path="/income" element={<IncomeScreen/>} />
+          <Route path="/expense" element={<ExpenseScreen/>} />
+
           <Route path="/signup" element={<SignUpScreen/>} />
 
           <Route path="/dashboard" element={<h2>Dashboard</h2>} />

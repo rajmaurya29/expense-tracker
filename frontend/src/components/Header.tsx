@@ -9,7 +9,7 @@ export interface HeaderProps {
   headerHeight?: number;
 }
 
-const Header: React.FC<HeaderProps> = ({  headerHeight = 54 }) => {
+const Header: React.FC<HeaderProps> = ({  headerHeight = 190 }) => {
     const dispatch=useDispatch<AppDispatch>();
   return (
     <header
@@ -18,7 +18,7 @@ const Header: React.FC<HeaderProps> = ({  headerHeight = 54 }) => {
         top: 0,
         left: 0,
         right: 0,
-        height: headerHeight,
+        height: 55,
         display: "flex",
         alignItems: "center",
         background: "#fff",
@@ -49,7 +49,7 @@ const Header: React.FC<HeaderProps> = ({  headerHeight = 54 }) => {
         <MdMenu />
       </button>
 
-      <span style={{ fontWeight: 700, fontSize: "1.1rem", color: "#222" }}>
+      <span style={{ fontWeight: 600, fontSize: "1.35rem", color: "#222",marginLeft:30 }}>
         Expense Tracker
       </span>
 

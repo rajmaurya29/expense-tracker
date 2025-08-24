@@ -6,9 +6,9 @@ JSON.parse(localStorage.getItem("userInfo")!):null;
 
 
 export const loginUser=createAsyncThunk(
-    "loginUser",async ({username,password}:{username:string,password:string},thunkAPI)=>{
+    "loginUser",async ({email,password}:{email:string,password:string},thunkAPI)=>{
         try{
-            const response= await axios.post("http://127.0.0.1:8000/users/login/",{"username":username,"password":password},
+            const response= await axios.post("http://127.0.0.1:8000/users/login/",{"username":email,"password":password},
                { withCredentials:true}
             )
             return response.data;

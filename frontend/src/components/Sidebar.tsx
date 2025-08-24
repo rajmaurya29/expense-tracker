@@ -34,8 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     borderRadius: 8,
     color: "#222",
   };
-
-  const user = { name: "Mike William", avatar: "https://i.pravatar.cc/80?img=3" };
+const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.name);
+  const user = { name: userName, avatar: "https://i.pravatar.cc/80?img=3" };
 
   return (
     <>

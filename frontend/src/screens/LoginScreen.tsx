@@ -2,22 +2,26 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
+import { loginUser } from "../redux/slices/UserSlice";
 // import "./index.css"; // make sure this file is imported once (here or in your app root)
 
 const LoginScreen: React.FC = () => {
   const navigate=useNavigate();
+  const dispatch=useDispatch<AppDispatch>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
+    
     e.preventDefault();
     setError(null);
     setSubmitting(true);
     try {
       // Demo login
       await new Promise((r) => setTimeout(r, 800));
+      dispatch(loginUser({ email, password }))
       console.log("Login:", { email, password });
     } catch (err: any) {
       setError(err?.message || "Login failed. Please try again.");

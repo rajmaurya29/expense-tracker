@@ -3,22 +3,32 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
+    name=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model=User
-        fields='__all__'
+        fields=['id','username','email','name']
+    def get_name(self,obj):
+        name=obj.first_name
+        return name
     
-class CategorySeriallizer(serializers.ModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model=Category
         fields='__all__'
 
-class ExpenseSeriallizer(serializers.ModelSerializer):
+class ExpenseSerializer(serializers.ModelSerializer):
+    categoryName=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model=Expense
-        fields='__all__'
+        fields=['id','user','title','amount','categoryName','date','notes']
+    def get_categoryName(self,obj):
+        return obj.category.name
 
 
-class IncomeSeriallizer(serializers.ModelSerializer):
+class IncomeSerializer(serializers.ModelSerializer):
+    categoryName=serializers.SerializerMethodField(read_only=True)
     class Meta:
         model=Income
-        fields='__all__'
+        fields=['id','user','source','amount','categoryName','date','notes']
+    def get_categoryName(self,obj):
+        return obj.category.name
