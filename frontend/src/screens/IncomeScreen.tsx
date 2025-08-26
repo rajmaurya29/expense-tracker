@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -11,24 +11,26 @@ import {
   Title,
 } from "chart.js";
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
-
+import { useDispatch,useSelector } from "react-redux";
+import type { RootState,AppDispatch } from "../redux/store";
+import { income } from "../redux/slices/IncomeSlice";
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
-type IncomePoint = { label: string; value: number };
+// type IncomePoint = { label: string; value: number };
 type IncomeItem = { id: string; title: string; date: string; amount: number; category?: string };
 
-const incomeSeries: IncomePoint[] = [
-  { label: "1st Jan", value: 11200 },
-  { label: "4th Jan", value: 8600 },
-  { label: "6th Jan", value: 8200 },
-  { label: "7th Jan", value: 15000 },
-  { label: "8th Jan", value: 1200 },
-  { label: "9th Jan", value: 7600 },
-  { label: "10th Jan", value: 10800 },
-  { label: "11th Jan", value: 12400 },
-  { label: "13th Jan", value: 9800 },
-  { label: "12th Feb", value: 12900 },
-];
+// const incomeSeries: IncomePoint[] = [
+//   { label: "1st Jan", value: 11200 },
+//   { label: "4th Jan", value: 8600 },
+//   { label: "6th Jan", value: 8200 },
+//   { label: "7th Jan", value: 15000 },
+//   { label: "8th Jan", value: 1200 },
+//   { label: "9th Jan", value: 7600 },
+//   { label: "10th Jan", value: 10800 },
+//   { label: "11th Jan", value: 12400 },
+//   { label: "13th Jan", value: 9800 },
+//   { label: "12th Feb", value: 12900 },
+// ];
 
 const sources: IncomeItem[] = [
   { id: "1", title: "Salary", date: "12th Feb 2025", amount: 12000, category: "Job" },
@@ -40,9 +42,6 @@ const sources: IncomeItem[] = [
 ];
 
 /* Expenses demo data for the Doughnut */
-const expenseLabels = ["Rent", "Groceries", "Transport", "Utilities", "Entertainment", "Other"];
-const expenseValues = [1800, 700, 240, 320, 410, 230];
-const expenseColors = ["#8b5cf6", "#a78bfa", "#7dd3fc", "#34d399", "#f472b6", "#fbbf24"];
 
 const currency = (n: number) =>
   n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -54,18 +53,27 @@ const niceMax = (v: number) => {
 };
 
 const IncomeScreen: React.FC = () => {
+  useEffect(()=>{
+    dispatch(income());
+  },[])
+
+  const incomeSelector=useSelector((state:RootState)=>state.userIncome.userIncome)
   const [category, setCategory] = useState<string>("__ALL__");
+
+  const incomeLabels = incomeSelector.map((i)=>i.categoryName);
+  const expenseValues = incomeSelector.map((i)=>Number(i.amount));
+  const expenseColors = ["#8b5cf6", "#a78bfa", "#7dd3fc", "#34d399", "#f472b6", "#fbbf24"];
 
   // Derived categories
   const categories = useMemo(() => {
     const set = new Set<string>();
-    sources.forEach((i) => i.category && set.add(i.category));
+    incomeSelector.forEach((i) => i.categoryName && set.add(i.categoryName));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, []);
 
   // Filtered list + split halves
   const filtered = useMemo(
-    () => (category === "__ALL__" ? sources : sources.filter((i) => i.category === category)),
+    () => (category === "__ALL__" ? incomeSelector : incomeSelector.filter((i) => i.categoryName === category)),
     [category]
   );
   const mid = Math.ceil(filtered.length / 2);
@@ -73,15 +81,15 @@ const IncomeScreen: React.FC = () => {
   const rightHalf = filtered.slice(mid);
 
   // Bar chart data/options (thicker bars, currency ticks)
-  const yMax = niceMax(Math.max(...incomeSeries.map((d) => d.value), 1));
+  const yMax = niceMax(Math.max(...incomeSelector.map((d:any) =>Number(d.amount)), 1));
 
   const barData: ChartData<"bar"> = {
-    labels: incomeSeries.map((d) => d.label),
+    labels: incomeSelector.map((d:any) => d.date),
     datasets: [
       {
         label: "Income",
-        data: incomeSeries.map((d) => d.value),
-        backgroundColor: (ctx) => {
+        data: incomeSelector.map((d:any) => d.amount),
+        backgroundColor: () => {
           // dual-layer look: gradient-like by using two colors via scriptable for each bar
           // Chart.js single dataset => use a solid main color. We'll mimic depth via border/hover.
           return "#7c3aed";
@@ -135,7 +143,7 @@ const IncomeScreen: React.FC = () => {
 
   // Doughnut (expenses by category)
   const doughnutData: ChartData<"doughnut"> = {
-    labels: expenseLabels,
+    labels: incomeLabels,
     datasets: [
       {
         data: expenseValues,
@@ -172,7 +180,9 @@ const IncomeScreen: React.FC = () => {
   };
 
   const expenseTotal = expenseValues.reduce((a, b) => a + b, 0);
-
+  const dispatch=useDispatch<AppDispatch>();
+  
+  
   return (
     <div className="page-wrap page-lg">
       {/* Overview: Bar (left ~60%) + Doughnut (right ~40%) */}
@@ -206,12 +216,12 @@ const IncomeScreen: React.FC = () => {
 
               {/* Legend under the donut */}
               <ul className="pie-legend">
-                {expenseLabels.map((lbl, i) => {
+                {incomeLabels.map((lbl, i) => {
                   const val = expenseValues[i];
                   const pct = Math.round((val / expenseTotal) * 100);
                   return (
                     <li key={lbl} className="pie-legend-item">
-                      <span className="dot" style={{ background: expenseColors[i] }} />
+                      <span className="dot" style={{ background: expenseColors[expenseValues.length%i] }} />
                       <span className="name">{lbl}</span>
                       <span className="val">
                         {currency(val)} · {pct}%
@@ -254,13 +264,13 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-left">
                   <div className="avatar-dot avatar-dot-lg" aria-hidden />
                   <div>
-                    <div className="list-title list-title-lg">{item.title}</div>
+                    <div className="list-title list-title-lg">{item.source}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
                   </div>
                 </div>
                 <div className="list-right">
-                  <span className="amount amount-lg up">+ {currency(item.amount)}</span>
-                  {item.category && <span className="chip chip-green chip-lg">{item.category}</span>}
+                  <span className="amount amount-lg up">+ {currency(Number(item.amount))}</span>
+                  {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
                 </div>
               </li>
             ))}
@@ -272,13 +282,13 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-left">
                   <div className="avatar-dot avatar-dot-lg" aria-hidden />
                   <div>
-                    <div className="list-title list-title-lg">{item.title}</div>
+                    <div className="list-title list-title-lg">{item.source}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
                   </div>
                 </div>
                 <div className="list-right">
-                  <span className="amount amount-lg up">+ {currency(item.amount)}</span>
-                  {item.category && <span className="chip chip-green chip-lg">{item.category}</span>}
+                  <span className="amount amount-lg up">+ {currency(Number(item.amount))}</span>
+                  {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
                 </div>
               </li>
             ))}

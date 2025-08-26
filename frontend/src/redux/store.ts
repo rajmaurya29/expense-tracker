@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'  
 import sidebarSlice  from './slices/SidebarSlice';
 import UserSlice from './slices/UserSlice'
-
+import IncomeSlice from './slices/IncomeSlice';
 export const store=configureStore({
     reducer:{
         toggleSidbar:sidebarSlice,
-        userInfo:UserSlice
+        userInfo:UserSlice,
+        userIncome:IncomeSlice
     }
 });
 
