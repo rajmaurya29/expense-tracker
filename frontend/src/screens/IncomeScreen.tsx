@@ -11,94 +11,100 @@ import {
   Title,
 } from "chart.js";
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
-import { useDispatch,useSelector } from "react-redux";
-import type { RootState,AppDispatch } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "../redux/store";
 import { income } from "../redux/slices/IncomeSlice";
+import { MdDelete, MdClose } from "react-icons/md";
+import { createIncome } from "../redux/slices/CreateIncomeSlice";
+// import {createIncome} from "../redux/slices/IncomeSlice"
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
-// type IncomePoint = { label: string; value: number };
-type IncomeItem = { id: string; title: string; date: string; amount: number; category?: string };
+type IncomeRow = {
+  id: string | number;
+  source?: string;
+  date: string;
+  amount: string | number;
+  categoryName?: string;
+  notes?: string;
+};
 
-// const incomeSeries: IncomePoint[] = [
-//   { label: "1st Jan", value: 11200 },
-//   { label: "4th Jan", value: 8600 },
-//   { label: "6th Jan", value: 8200 },
-//   { label: "7th Jan", value: 15000 },
-//   { label: "8th Jan", value: 1200 },
-//   { label: "9th Jan", value: 7600 },
-//   { label: "10th Jan", value: 10800 },
-//   { label: "11th Jan", value: 12400 },
-//   { label: "13th Jan", value: 9800 },
-//   { label: "12th Feb", value: 12900 },
-// ];
-
-const sources: IncomeItem[] = [
-  { id: "1", title: "Salary", date: "12th Feb 2025", amount: 12000, category: "Job" },
-  { id: "2", title: "E‑commerce Sales", date: "11th Feb 2025", amount: 11900, category: "Business" },
-  { id: "3", title: "Interest from Savings", date: "13th Jan 2025", amount: 9600, category: "Passive" },
-  { id: "4", title: "Graphic Design", date: "10th Jan 2025", amount: 10500, category: "Freelance" },
-  { id: "5", title: "Affiliate Payout", date: "8th Jan 2025", amount: 4200, category: "Passive" },
-  { id: "6", title: "Stock Dividends", date: "5th Jan 2025", amount: 3100, category: "Passive" },
-];
-
-/* Expenses demo data for the Doughnut */
+type DraftIncome = {
+  source: string;
+  amount: string;
+  category: string;
+  notes: string;
+  date: string; // yyyy-mm-dd
+};
 
 const currency = (n: number) =>
   n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
 const niceMax = (v: number) => {
+  if (!isFinite(v) || v <= 0) return 1;
   const magnitude = Math.pow(10, Math.floor(Math.log10(v)));
   const options = [2, 2.5, 5, 10].map((k) => k * magnitude);
   return options.find((o) => o >= v) ?? Math.ceil(v / magnitude) * magnitude;
 };
 
 const IncomeScreen: React.FC = () => {
-  useEffect(()=>{
-    dispatch(income());
-  },[])
+  const dispatch = useDispatch<AppDispatch>();
 
-  const incomeSelector=useSelector((state:RootState)=>state.userIncome.userIncome)
+  
+  const incomeSelector = useSelector((s: RootState) => s.userIncome.userIncome) as IncomeRow[] | undefined;
+  const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
+  useEffect(() => {
+    dispatch(income());
+  }, [dispatch]);
+
+  // Category filter
   const [category, setCategory] = useState<string>("__ALL__");
 
-  const incomeLabels = incomeSelector.map((i)=>i.categoryName);
-  const expenseValues = incomeSelector.map((i)=>Number(i.amount));
-  const expenseColors = ["#8b5cf6", "#a78bfa", "#7dd3fc", "#34d399", "#f472b6", "#fbbf24"];
+  // Modal state
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [draft, setDraft] = useState<DraftIncome>({
+    source: "",
+    amount: "",
+    category: "",
+    notes: "",
+    date: new Date().toISOString().slice(0, 10),
+  });
 
-  // Derived categories
+  // Derived arrays for charts
+  const incomeLabels = rows.map((i) => i.categoryName ?? "Uncategorized");
+  const incomeValues = rows.map((i) => Number(i.amount) || 0);
+  const incomeColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
+
+  // Distinct categories for dropdown
   const categories = useMemo(() => {
     const set = new Set<string>();
-    incomeSelector.forEach((i) => i.categoryName && set.add(i.categoryName));
+    rows.forEach((i) => i.categoryName && set.add(i.categoryName));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
-  }, []);
+  }, [rows]);
 
   // Filtered list + split halves
   const filtered = useMemo(
-    () => (category === "__ALL__" ? incomeSelector : incomeSelector.filter((i) => i.categoryName === category)),
-    [category]
+    () => (category === "__ALL__" ? rows : rows.filter((i) => i.categoryName === category)),
+    [rows, category]
   );
   const mid = Math.ceil(filtered.length / 2);
   const leftHalf = filtered.slice(0, mid);
   const rightHalf = filtered.slice(mid);
 
-  // Bar chart data/options (thicker bars, currency ticks)
-  const yMax = niceMax(Math.max(...incomeSelector.map((d:any) =>Number(d.amount)), 1));
+  // Bar chart config
+  const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
 
   const barData: ChartData<"bar"> = {
-    labels: incomeSelector.map((d:any) => d.date),
+    labels: rows.map((d) => d.date),
     datasets: [
       {
         label: "Income",
-        data: incomeSelector.map((d:any) => d.amount),
-        backgroundColor: () => {
-          // dual-layer look: gradient-like by using two colors via scriptable for each bar
-          // Chart.js single dataset => use a solid main color. We'll mimic depth via border/hover.
-          return "#7c3aed";
-        },
+        data: rows.map((d) => Number(d.amount) || 0),
+        backgroundColor: "#7c3aed",
         borderColor: "#6d28d9",
         borderWidth: 1.5,
-        borderRadius: 10,        // rounded corners
-        barPercentage: 0.7,      // broader bars
-        categoryPercentage: 0.7, // spacing between bars
+        borderRadius: 10,
+        barPercentage: 0.7,
+        categoryPercentage: 0.7,
         hoverBackgroundColor: "#8b5cf6",
       },
     ],
@@ -116,8 +122,6 @@ const IncomeScreen: React.FC = () => {
         titleColor: "#fff",
         bodyColor: "#fff",
         padding: 10,
-        borderColor: "#1f2937",
-        borderWidth: 0,
         callbacks: {
           label: (ctx: TooltipItem<"bar">) => ` ${currency(Number(ctx.parsed.y || 0))}`,
         },
@@ -141,13 +145,13 @@ const IncomeScreen: React.FC = () => {
     },
   };
 
-  // Doughnut (expenses by category)
+  // Doughnut chart config
   const doughnutData: ChartData<"doughnut"> = {
     labels: incomeLabels,
     datasets: [
       {
-        data: expenseValues,
-        backgroundColor: expenseColors,
+        data: incomeValues,
+        backgroundColor: incomeValues.map((_, i) => incomeColors[i % incomeColors.length]),
         borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 6,
@@ -158,9 +162,10 @@ const IncomeScreen: React.FC = () => {
   const doughnutOptions: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
-    cutout: "64%", // donut thickness
+    cutout: "64%",
     plugins: {
-      legend: { display: false }, // we’ll render a custom legend list under the chart
+      legend: { display: false },
+      title: { display: false },
       tooltip: {
         backgroundColor: "#111827",
         titleColor: "#fff",
@@ -168,60 +173,100 @@ const IncomeScreen: React.FC = () => {
         padding: 10,
         callbacks: {
           label: (ctx) => {
-            const val = Number(ctx.parsed);
-            const total = expenseValues.reduce((a, b) => a + b, 0);
+            const val = Number(ctx.parsed) || 0;
+            const total = incomeValues.reduce((a, b) => a + b, 0) || 1;
             const pct = Math.round((val / total) * 100);
             return ` ${ctx.label}: ${currency(val)} · ${pct}%`;
           },
         },
       },
-      title: { display: false },
     },
   };
 
-  const expenseTotal = expenseValues.reduce((a, b) => a + b, 0);
-  const dispatch=useDispatch<AppDispatch>();
-  
-  
+  const totalIncome = incomeValues.reduce((a, b) => a + b, 0);
+
+  // Modal handlers
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  const onChangeDraft = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setDraft((d) => ({ ...d, [name]: value }));
+  };
+  const onSubmitDraft = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = Number(draft.amount);
+    if (!draft.source.trim() || !draft.category.trim() || !draft.date || !isFinite(amt) || amt <= 0) {
+      alert("Please fill Source, Category, valid Amount, and Date.");
+      return;
+    }
+
+    // TODO: dispatch create action here
+    dispatch(createIncome({ source: draft.source, amount: String(amt), categoryName: draft.category, notes: draft.notes, date: draft.date }))
+    console.log({ source: draft.source, amount: amt, categoryName: draft.category, notes: draft.notes, date: draft.date });
+    
+
+    closeModal();
+    setDraft({
+      source: "",
+      amount: "",
+      category: "",
+      notes: "",
+      date: new Date().toISOString().slice(0, 10),
+    });
+    dispatch(income());
+  };
+
+  // Delete handler
+  const onDeleteIncome = (id: string | number) => {
+    // TODO: dispatch delete action here
+    // dispatch(deleteIncome(id))
+    if (confirm("Delete this income item?")) {
+      // perform delete
+    }
+  };
+
   return (
     <div className="page-wrap page-lg">
-      {/* Overview: Bar (left ~60%) + Doughnut (right ~40%) */}
+      {/* Overview */}
       <section className="card card-elevated card-lg">
         <header className="card-head card-head-split">
           <div>
             <h2 className="card-title card-title-lg">Overview</h2>
-            <p className="card-subtitle card-subtitle-lg">Income over time and expenses by category.</p>
+            <p className="card-subtitle card-subtitle-lg">Income over time and income share by category.</p>
           </div>
           <div className="actions-row">
-            <button className="btn btn-light btn-pill btn-lg" aria-label="Add income">
+            <button className="btn btn-light btn-pill btn-lg" aria-label="Add income" onClick={openModal}>
               <span className="btn-icon btn-icon-lg">+</span> Add Income
             </button>
           </div>
         </header>
 
         <div className="chart-grid">
-          {/* Bar (60%) */}
+          {/* Bar chart (left ~60%) */}
           <div className="chart-left">
             <div className="chartjs-box">
               <Bar data={barData} options={barOptions} />
             </div>
           </div>
 
-          {/* Doughnut (40%) */}
+          {/* Doughnut (right ~40%) */}
           <div className="chart-right">
             <div className="pie-wrap">
               <div className="chartjs-pie">
                 <Doughnut data={doughnutData} options={doughnutOptions} />
               </div>
-
-              {/* Legend under the donut */}
               <ul className="pie-legend">
                 {incomeLabels.map((lbl, i) => {
-                  const val = expenseValues[i];
-                  const pct = Math.round((val / expenseTotal) * 100);
+                  const val = incomeValues[i] ?? 0;
+                  const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
                   return (
-                    <li key={lbl} className="pie-legend-item">
-                      <span className="dot" style={{ background: expenseColors[expenseValues.length%i] }} />
+                    <li key={`${lbl}-${i}`} className="pie-legend-item">
+                      <span
+                        className="dot"
+                        style={{ background: incomeColors[i % incomeColors.length] }}
+                      />
                       <span className="name">{lbl}</span>
                       <span className="val">
                         {currency(val)} · {pct}%
@@ -235,7 +280,7 @@ const IncomeScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* Income Sources with category dropdown, split into two columns */}
+      {/* Income Sources */}
       <section className="card card-elevated card-lg">
         <header className="sources-head">
           <h3 className="card-title card-title-lg">Income Sources</h3>
@@ -258,43 +303,152 @@ const IncomeScreen: React.FC = () => {
         </header>
 
         <div className="columns-2 columns-2-lg">
+          {/* Left column */}
           <ul className="list list-lg">
             {leftHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
                   <div className="avatar-dot avatar-dot-lg" aria-hidden />
                   <div>
-                    <div className="list-title list-title-lg">{item.source}</div>
+                    <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
                   </div>
                 </div>
                 <div className="list-right">
-                  <span className="amount amount-lg up">+ {currency(Number(item.amount))}</span>
+                  <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete income"
+                    title="Delete"
+                    onClick={() => onDeleteIncome(item.id)}
+                  >
+                    <MdDelete size={18} />
+                  </button>
                 </div>
               </li>
             ))}
+            {leftHalf.length === 0 && <li className="empty-row">No items</li>}
           </ul>
 
+          {/* Right column */}
           <ul className="list list-lg">
             {rightHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
                   <div className="avatar-dot avatar-dot-lg" aria-hidden />
                   <div>
-                    <div className="list-title list-title-lg">{item.source}</div>
+                    <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
                   </div>
                 </div>
                 <div className="list-right">
-                  <span className="amount amount-lg up">+ {currency(Number(item.amount))}</span>
+                  <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete income"
+                    title="Delete"
+                    onClick={() => onDeleteIncome(item.id)}
+                  >
+                    <MdDelete size={18} />
+                  </button>
                 </div>
               </li>
             ))}
+            {rightHalf.length === 0 && <li className="empty-row">No items</li>}
           </ul>
         </div>
       </section>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-card">
+            <div className="modal-head">
+              <h3 className="modal-title">Add Income</h3>
+              <button className="icon-btn" aria-label="Close" onClick={closeModal}>
+                <MdClose size={20} />
+              </button>
+            </div>
+
+            <form className="modal-body" onSubmit={onSubmitDraft}>
+              <div className="form-row">
+                <label className="form-label" htmlFor="source">Source</label>
+                <input
+                  id="source"
+                  name="source"
+                  className="form-input"
+                  placeholder="e.g., Salary, Freelance, Sales"
+                  value={draft.source}
+                  onChange={onChangeDraft}
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <label className="form-label" htmlFor="amount">Amount</label>
+                <input
+                  id="amount"
+                  name="amount"
+                  type="number"
+                  step="0.01"
+                  className="form-input"
+                  placeholder="e.g., 1200"
+                  value={draft.amount}
+                  onChange={onChangeDraft}
+                  required
+                  min={0}
+                />
+              </div>
+
+              <div className="form-row">
+                <label className="form-label" htmlFor="category">Category</label>
+                <input
+                  id="category"
+                  name="category"
+                  className="form-input"
+                  placeholder="e.g., Job, Business, Passive"
+                  value={draft.category}
+                  onChange={onChangeDraft}
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <label className="form-label" htmlFor="notes">Notes</label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  className="form-input"
+                  placeholder="Optional notes"
+                  rows={3}
+                  value={draft.notes}
+                  onChange={onChangeDraft}
+                />
+              </div>
+
+              <div className="form-row">
+                <label className="form-label" htmlFor="date">Date</label>
+                <input
+                  id="date"
+                  name="date"
+                  type="date"
+                  className="form-input"
+                  value={draft.date}
+                  onChange={onChangeDraft}
+                  required
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="submit" className="btn btn-primary">Save</button>
+                <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
