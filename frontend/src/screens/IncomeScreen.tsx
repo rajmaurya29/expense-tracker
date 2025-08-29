@@ -16,7 +16,8 @@ import type { RootState, AppDispatch } from "../redux/store";
 import { income } from "../redux/slices/IncomeSlice";
 import { MdDelete, MdClose } from "react-icons/md";
 import { createIncome } from "../redux/slices/CreateIncomeSlice";
-// import {createIncome} from "../redux/slices/IncomeSlice"
+import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
+
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
 type IncomeRow = {
@@ -49,12 +50,24 @@ const niceMax = (v: number) => {
 const IncomeScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  
-  const incomeSelector = useSelector((s: RootState) => s.userIncome.userIncome) as IncomeRow[] | undefined;
-  const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
+  // Fetch data
   useEffect(() => {
     dispatch(income());
+    dispatch(categoryIncome());
   }, [dispatch]);
+
+  // Selectors with safe fallbacks
+  const incomeSelector = useSelector((s: RootState) => s.userIncome.userIncome) as IncomeRow[] | undefined;
+  const categoryNameSelector = useSelector((s: RootState) => s.categoryIncome.income?.category_name) as
+    | string[]
+    | undefined;
+  const categoryFrequencySelector = useSelector((s: RootState) => s.categoryIncome.income?.category_frequency) as
+    | number[]
+    | undefined;
+
+  const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
+  const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
+  const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
 
   // Category filter
   const [category, setCategory] = useState<string>("__ALL__");
@@ -69,11 +82,6 @@ const IncomeScreen: React.FC = () => {
     date: new Date().toISOString().slice(0, 10),
   });
 
-  // Derived arrays for charts
-  const incomeLabels = rows.map((i) => i.categoryName ?? "Uncategorized");
-  const incomeValues = rows.map((i) => Number(i.amount) || 0);
-  const incomeColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
-
   // Distinct categories for dropdown
   const categories = useMemo(() => {
     const set = new Set<string>();
@@ -81,7 +89,7 @@ const IncomeScreen: React.FC = () => {
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [rows]);
 
-  // Filtered list + split halves
+  // Filtered list + halves
   const filtered = useMemo(
     () => (category === "__ALL__" ? rows : rows.filter((i) => i.categoryName === category)),
     [rows, category]
@@ -92,7 +100,6 @@ const IncomeScreen: React.FC = () => {
 
   // Bar chart config
   const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
-
   const barData: ChartData<"bar"> = {
     labels: rows.map((d) => d.date),
     datasets: [
@@ -109,11 +116,10 @@ const IncomeScreen: React.FC = () => {
       },
     ],
   };
-
   const barOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
-    layout: { padding: { right: 8, left: 8, top: 4, bottom: 0 } },
+    layout: { padding: { right: 8, left: 8, top: 4, bottom: 0} },
     plugins: {
       legend: { display: false },
       title: { display: false },
@@ -145,20 +151,20 @@ const IncomeScreen: React.FC = () => {
     },
   };
 
-  // Doughnut chart config
+  // Doughnut chart config (uses category totals from selector)
+  const incomeColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
   const doughnutData: ChartData<"doughnut"> = {
-    labels: incomeLabels,
+    labels: catNames,
     datasets: [
       {
-        data: incomeValues,
-        backgroundColor: incomeValues.map((_, i) => incomeColors[i % incomeColors.length]),
+        data: catFreqs,
+        backgroundColor: catFreqs.map((_, i) => incomeColors[i % incomeColors.length]),
         borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 6,
       },
     ],
   };
-
   const doughnutOptions: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -174,7 +180,7 @@ const IncomeScreen: React.FC = () => {
         callbacks: {
           label: (ctx) => {
             const val = Number(ctx.parsed) || 0;
-            const total = incomeValues.reduce((a, b) => a + b, 0) || 1;
+            const total = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0) || 1;
             const pct = Math.round((val / total) * 100);
             return ` ${ctx.label}: ${currency(val)} · ${pct}%`;
           },
@@ -182,8 +188,7 @@ const IncomeScreen: React.FC = () => {
       },
     },
   };
-
-  const totalIncome = incomeValues.reduce((a, b) => a + b, 0);
+  const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
   // Modal handlers
   const openModal = () => setModalOpen(true);
@@ -201,11 +206,19 @@ const IncomeScreen: React.FC = () => {
       alert("Please fill Source, Category, valid Amount, and Date.");
       return;
     }
-
-    // TODO: dispatch create action here
-    dispatch(createIncome({ source: draft.source, amount: String(amt), categoryName: draft.category, notes: draft.notes, date: draft.date }))
-    console.log({ source: draft.source, amount: amt, categoryName: draft.category, notes: draft.notes, date: draft.date });
-    
+    // Persist
+    dispatch(
+      createIncome({
+        source: draft.source,
+        amount: String(amt),
+        categoryName: draft.category,
+        notes: draft.notes,
+        date: draft.date,
+      })
+    ).finally(() => {
+      dispatch(income());
+      dispatch(categoryIncome());
+    });
 
     closeModal();
     setDraft({
@@ -215,15 +228,12 @@ const IncomeScreen: React.FC = () => {
       notes: "",
       date: new Date().toISOString().slice(0, 10),
     });
-    dispatch(income());
   };
 
-  // Delete handler
+  // Delete handler (wire to real thunk)
   const onDeleteIncome = (id: string | number) => {
-    // TODO: dispatch delete action here
-    // dispatch(deleteIncome(id))
     if (confirm("Delete this income item?")) {
-      // perform delete
+      // dispatch(deleteIncome(id)).then(() => { dispatch(income()); dispatch(categoryIncome()); });
     }
   };
 
@@ -236,7 +246,7 @@ const IncomeScreen: React.FC = () => {
             <h2 className="card-title card-title-lg">Overview</h2>
             <p className="card-subtitle card-subtitle-lg">Income over time and income share by category.</p>
           </div>
-          <div className="actions-row">
+        <div className="actions-row">
             <button className="btn btn-light btn-pill btn-lg" aria-label="Add income" onClick={openModal}>
               <span className="btn-icon btn-icon-lg">+</span> Add Income
             </button>
@@ -244,32 +254,29 @@ const IncomeScreen: React.FC = () => {
         </header>
 
         <div className="chart-grid">
-          {/* Bar chart (left ~60%) */}
+          {/* Bar chart */}
           <div className="chart-left">
             <div className="chartjs-box">
               <Bar data={barData} options={barOptions} />
             </div>
           </div>
 
-          {/* Doughnut (right ~40%) */}
+          {/* Doughnut */}
           <div className="chart-right">
             <div className="pie-wrap">
               <div className="chartjs-pie">
                 <Doughnut data={doughnutData} options={doughnutOptions} />
               </div>
               <ul className="pie-legend">
-                {incomeLabels.map((lbl, i) => {
-                  const val = incomeValues[i] ?? 0;
+                {catNames.map((lbl, i) => {
+                  const val = catFreqs[i] ?? 0;
                   const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
                   return (
                     <li key={`${lbl}-${i}`} className="pie-legend-item">
-                      <span
-                        className="dot"
-                        style={{ background: incomeColors[i % incomeColors.length] }}
-                      />
+                      <span className="dot" style={{ background: incomeColors[i % incomeColors.length] }} />
                       <span className="name">{lbl}</span>
                       <span className="val">
-                        {currency(val)} · {pct}%
+                        {currency(Number(val) || 0)} · {pct}%
                       </span>
                     </li>
                   );
@@ -317,12 +324,7 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button
-                    className="icon-btn danger"
-                    aria-label="Delete income"
-                    title="Delete"
-                    onClick={() => onDeleteIncome(item.id)}
-                  >
+                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(item.id)}>
                     <MdDelete size={18} />
                   </button>
                 </div>
@@ -345,12 +347,7 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button
-                    className="icon-btn danger"
-                    aria-label="Delete income"
-                    title="Delete"
-                    onClick={() => onDeleteIncome(item.id)}
-                  >
+                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(item.id)}>
                     <MdDelete size={18} />
                   </button>
                 </div>
