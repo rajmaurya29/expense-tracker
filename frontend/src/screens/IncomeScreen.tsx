@@ -17,6 +17,7 @@ import { income } from "../redux/slices/IncomeSlice";
 import { MdDelete, MdClose } from "react-icons/md";
 import { createIncome } from "../redux/slices/CreateIncomeSlice";
 import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
+import { deleteIncome } from "../redux/slices/DeleteIncomeSlice";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -231,9 +232,10 @@ const IncomeScreen: React.FC = () => {
   };
 
   // Delete handler (wire to real thunk)
-  const onDeleteIncome = (id: string | number) => {
+  const onDeleteIncome = (id:  number) => {
     if (confirm("Delete this income item?")) {
-      // dispatch(deleteIncome(id)).then(() => { dispatch(income()); dispatch(categoryIncome()); });
+      console.log(id)
+      dispatch(deleteIncome(id)).then(() => { dispatch(income()); dispatch(categoryIncome()); });
     }
   };
 
@@ -324,7 +326,7 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(item.id)}>
+                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(Number(item.id))}>
                     <MdDelete size={18} />
                   </button>
                 </div>
@@ -347,7 +349,7 @@ const IncomeScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(item.id)}>
+                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(Number(item.id))}>
                     <MdDelete size={18} />
                   </button>
                 </div>

@@ -3,9 +3,9 @@ import axios from 'axios'
 
 
 export const deleteIncome=createAsyncThunk(
-    "deleteIncome",async ({source,amount,categoryName,notes,date}:{source:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
+    "deleteIncome",async (id:number,thunkAPI)=>{
         try{
-            const response= await axios.post("http://127.0.0.1:8000/income/create/",{source,amount,category:categoryName,notes,date},
+            const response= await axios.delete(`http://127.0.0.1:8000/income/delete/${id}`,
                { withCredentials:true}
             )
             return response.data;
