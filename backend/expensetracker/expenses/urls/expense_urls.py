@@ -6,4 +6,5 @@ urlpatterns = [
     path('get/',expense_views.get_expenses,name='get_expenses'),
     path('get/<int:id>',expense_views.get_expense,name='get_expense'),
     path('delete/<int:id>',expense_views.delete_expense,name='delete_expense'),
+    path('expenseCategory/',expense_views.expense_category,name='expense_category'),
 ]   

@@ -77,3 +77,33 @@ def delete_expense(request,id):
         return Response({"detail":"expense deleted successfully"})
     except:
         return Response({"detail":"failed to delete data"})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def expense_category(request):
+    category=Category.objects.all()
+    serializer1=CategorySerializer(category,many=True)
+
+    # ret=Income.objects.filter(
+        
+    # )
+    # value={}
+    serializer_data=serializer1.data
+    # print(serializer_data)
+    category_name=[]
+    category_frequency=[]
+    for i in serializer_data:
+        # print(i["name"])
+
+        expense=Expense.objects.filter(
+            user=request.user,
+            category_id=i["id"])
+        expense_serializer=ExpenseSerializer(expense,many=True)
+        if(len(expense_serializer.data)>0):
+            category_name.append(i["name"])
+            category_frequency.append(len(expense_serializer.data))
+        # value[i["name"]]=len(income_serializer.data)
+
+    # serializer=CategorySerializer(category,many=True)
+    # print(serializer)
+    return Response({"category_name":category_name,"category_frequency":category_frequency})

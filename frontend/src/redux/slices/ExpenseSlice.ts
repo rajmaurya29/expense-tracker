@@ -2,13 +2,13 @@ import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 
-export const income=createAsyncThunk(
-    "income",async (_,thunkAPI)=>{
+export const expense=createAsyncThunk(
+    "expense",async (_,thunkAPI)=>{
         try{
-            const response= await axios.get("http://127.0.0.1:8000/income/get/",
+            const response= await axios.get("http://127.0.0.1:8000/expense/get/",
                { "withCredentials":true}
             )
-            console.log(response.data)
+            // console.log(response.data)
             return response.data;
         }
         catch(error:any){
@@ -17,7 +17,7 @@ export const income=createAsyncThunk(
     
 }
 )
-interface IncomeItem {
+interface ExpenseItem {
   id: number;
   user: number;
   source: string;
@@ -27,36 +27,36 @@ interface IncomeItem {
   notes: string;
 }
 
-interface incomeState{
-    userIncome:IncomeItem[],
+interface expenseState{
+    userExpense:ExpenseItem[],
     loading:boolean,
     error:any
 }
 
-const initialState:incomeState={
-    userIncome:[],
+const initialState:expenseState={
+    userExpense:[],
     loading:false,
     error:null
 };
 
-const IncomeSlice=createSlice({
-    name:"UserIncome",
+const ExpenseSlice=createSlice({
+    name:"userExpense",
     initialState,
     reducers:{},
     extraReducers:(builder)=>{
-        builder.addCase(income.pending,(state)=>{
+        builder.addCase(expense.pending,(state)=>{
             state.loading=true,
             state.error=null
         });
-        builder.addCase(income.fulfilled,(state,action)=>{
-            state.userIncome=action.payload;
+        builder.addCase(expense.fulfilled,(state,action)=>{
+            state.userExpense=action.payload;
             // console.log("action-",action.payload)
         })
-        builder.addCase(income.rejected,(state,action)=>{
+        builder.addCase(expense.rejected,(state,action)=>{
             state.loading=false,
             state.error=action.payload
         })
     }
 })
 
-export default IncomeSlice.reducer
+export default ExpenseSlice.reducer
