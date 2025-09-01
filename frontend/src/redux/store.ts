@@ -13,8 +13,8 @@ export const store=configureStore({
         userIncome:IncomeSlice,
         createIncome:CreateIncomeSlice,
         categoryIncome:CategoryIncomeSlice,
-        createExpense:ExpenseSlice,
-        userExpense:CreateExpenseSlice
+        createExpense:CreateExpenseSlice,
+        userExpense:ExpenseSlice,
 
     }
 });

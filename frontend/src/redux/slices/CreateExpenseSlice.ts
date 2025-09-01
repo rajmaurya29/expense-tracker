@@ -2,20 +2,20 @@ import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 
-export const createExpense=createAsyncThunk(
-    "createExpense",async ({title,amount,categoryName,notes,date}:{title:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
-        try{
-            const response= await axios.post("http://127.0.0.1:8000/expense/create/",{title,amount,category:categoryName,notes,date},
-               { withCredentials:true}
-            )
-            return response.data;
-        }
-        catch(error:any){
-            return thunkAPI.rejectWithValue(error.message);
-        }
-    
-}
-)
+    export const createExpense=createAsyncThunk(
+        "createExpense",async ({title,amount,categoryName,notes,date}:{title:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
+            try{
+                const response= await axios.post("http://127.0.0.1:8000/expense/create/",{title,amount,category:categoryName,notes,date},
+                { withCredentials:true}
+                )
+                return response.data;
+            }
+            catch(error:any){
+                return thunkAPI.rejectWithValue(error.message);
+            }
+        
+    }
+    )
 
 interface ExpenseState{
     expense:any,

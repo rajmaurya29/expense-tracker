@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,6 +12,9 @@ import {
 } from "chart.js";
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
 import { MdDelete, MdClose } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "../redux/store";
+import { expense } from "../redux/slices/ExpenseSlice";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -58,6 +61,11 @@ const seedRows: ExpenseRow[] = [
 const doughnutColors = ["#8b5cf6", "#a78bfa", "#7dd3fc", "#34d399", "#f472b6", "#fbbf24", "#94a3b8"];
 
 const ExpenseScreen: React.FC = () => {
+  const dispatch=useDispatch<AppDispatch>();
+  
+  useEffect(()=>{
+    dispatch(expense());
+  })
   // Local state for demo; replace with Redux/queries later
   const [rows, setRows] = useState<ExpenseRow[]>(seedRows);
 
