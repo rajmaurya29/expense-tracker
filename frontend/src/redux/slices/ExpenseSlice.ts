@@ -20,7 +20,7 @@ export const expense=createAsyncThunk(
 interface ExpenseItem {
   id: number;
   user: number;
-  source: string;
+  title: string;
   amount: string;       
   categoryName: string;
   date: string;       

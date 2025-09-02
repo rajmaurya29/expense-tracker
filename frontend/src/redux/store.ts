@@ -6,6 +6,10 @@ import CreateIncomeSlice from './slices/CreateIncomeSlice';
 import  CategoryIncomeSlice  from './slices/CategoryIncomeSlice';
 import  ExpenseSlice  from './slices/ExpenseSlice';
 import CreateExpenseSlice from './slices/CreateExpenseSlice';
+import DeleteIncomeSlice  from './slices/DeleteIncomeSlice';
+import DeleteExpenseSlice from './slices/DeleteExpenseSlice';
+import  CategoryExpenseSlice  from './slices/CategoryExpenseSlice';
+
 export const store=configureStore({
     reducer:{
         toggleSidbar:sidebarSlice,
@@ -15,7 +19,9 @@ export const store=configureStore({
         categoryIncome:CategoryIncomeSlice,
         createExpense:CreateExpenseSlice,
         userExpense:ExpenseSlice,
-
+        deleteIncome:DeleteIncomeSlice,
+        deleteExpense:DeleteExpenseSlice,
+        categoryExpense:CategoryExpenseSlice
     }
 });
 

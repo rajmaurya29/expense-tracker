@@ -11,19 +11,22 @@ import {
   Title,
 } from "chart.js";
 import type { ChartOptions, ChartData, TooltipItem } from "chart.js";
-import { MdDelete, MdClose } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState, AppDispatch } from "../redux/store";
 import { expense } from "../redux/slices/ExpenseSlice";
+import { MdDelete, MdClose } from "react-icons/md";
+import { createExpense } from "../redux/slices/CreateExpenseSlice";
+import { categoryExpense } from "../redux/slices/CategoryExpenseSlice";
+import { deleteExpense } from "../redux/slices/DeleteExpenseSlice";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
 type ExpenseRow = {
   id: string | number;
-  title: string;
-  date: string;          // e.g., 2025-08-30 or "30 Aug 2025"
-  amount: number;
-  categoryName: string;
+  title?: string;
+  date: string;
+  amount: string | number;
+  categoryName?: string;
   notes?: string;
 };
 
@@ -32,7 +35,7 @@ type DraftExpense = {
   amount: string;
   category: string;
   notes: string;
-  date: string;          // yyyy-mm-dd
+  date: string; // yyyy-mm-dd
 };
 
 const currency = (n: number) =>
@@ -45,29 +48,27 @@ const niceMax = (v: number) => {
   return options.find((o) => o >= v) ?? Math.ceil(v / magnitude) * magnitude;
 };
 
-const seedRows: ExpenseRow[] = [
-  { id: "e1", title: "Rent", date: "2025-08-01", amount: 1800, categoryName: "Housing" },
-  { id: "e2", title: "Groceries", date: "2025-08-03", amount: 120, categoryName: "Food" },
-  { id: "e3", title: "Internet & Utilities", date: "2025-08-04", amount: 95, categoryName: "Utilities" },
-  { id: "e4", title: "Fuel", date: "2025-08-05", amount: 60, categoryName: "Transport" },
-  { id: "e5", title: "Dining Out", date: "2025-08-06", amount: 45, categoryName: "Food" },
-  { id: "e6", title: "Streaming", date: "2025-08-08", amount: 15, categoryName: "Entertainment" },
-  { id: "e7", title: "Gym", date: "2025-08-09", amount: 25, categoryName: "Health" },
-  { id: "e8", title: "Movie Night", date: "2025-08-10", amount: 18, categoryName: "Entertainment" },
-  { id: "e9", title: "Taxi", date: "2025-08-12", amount: 22, categoryName: "Transport" },
-  { id: "e10", title: "Snacks", date: "2025-08-13", amount: 12, categoryName: "Food" },
-];
-
-const doughnutColors = ["#8b5cf6", "#a78bfa", "#7dd3fc", "#34d399", "#f472b6", "#fbbf24", "#94a3b8"];
-
 const ExpenseScreen: React.FC = () => {
-  const dispatch=useDispatch<AppDispatch>();
-  
-  useEffect(()=>{
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Fetch data
+  useEffect(() => {
     dispatch(expense());
-  })
-  // Local state for demo; replace with Redux/queries later
-  const [rows, setRows] = useState<ExpenseRow[]>(seedRows);
+    dispatch(categoryExpense());
+  }, [dispatch]);
+
+  // Selectors with safe fallbacks
+  const expenseSelector = useSelector((s: RootState) => s.userExpense.userExpense) as ExpenseRow[] | undefined;
+  const categoryNameSelector = useSelector((s: RootState) => s.categoryExpense.expense?.category_name) as
+    | string[]
+    | undefined;
+  const categoryFrequencySelector = useSelector((s: RootState) => s.categoryExpense.expense?.category_frequency) as
+    | number[]
+    | undefined;
+
+  const rows: ExpenseRow[] = Array.isArray(expenseSelector) ? expenseSelector : [];
+  const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
+  const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
 
   // Category filter
   const [category, setCategory] = useState<string>("__ALL__");
@@ -82,14 +83,14 @@ const ExpenseScreen: React.FC = () => {
     date: new Date().toISOString().slice(0, 10),
   });
 
-  // Derived categories
+  // Distinct categories for dropdown
   const categories = useMemo(() => {
     const set = new Set<string>();
     rows.forEach((i) => i.categoryName && set.add(i.categoryName));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [rows]);
 
-  // Filtered + split
+  // Filtered list + halves
   const filtered = useMemo(
     () => (category === "__ALL__" ? rows : rows.filter((i) => i.categoryName === category)),
     [rows, category]
@@ -98,20 +99,14 @@ const ExpenseScreen: React.FC = () => {
   const leftHalf = filtered.slice(0, mid);
   const rightHalf = filtered.slice(mid);
 
-  // Sort rows by date ascending for the bar labels (optional)
-  const sorted = useMemo(
-    () => [...rows].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
-    [rows]
-  );
-
   // Bar chart
-  const yMax = niceMax(Math.max(1, ...sorted.map((d) => Number(d.amount) || 0)));
+  const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
   const barData: ChartData<"bar"> = {
-    labels: sorted.map((d) => d.date),
+    labels: rows.map((d) => d.date),
     datasets: [
       {
         label: "Expense",
-        data: sorted.map((d) => Number(d.amount) || 0),
+        data: rows.map((d) => Number(d.amount) || 0),
         backgroundColor: "#7c3aed",
         borderColor: "#6d28d9",
         borderWidth: 1.5,
@@ -150,21 +145,14 @@ const ExpenseScreen: React.FC = () => {
     },
   };
 
-  // Doughnut chart (category totals from current rows)
-  const { catNames, catTotals } = useMemo(() => {
-    const totals = new Map<string, number>();
-    rows.forEach((r) => totals.set(r.categoryName, (totals.get(r.categoryName) || 0) + r.amount));
-    const names = Array.from(totals.keys()).sort((a, b) => a.localeCompare(b));
-    const vals = names.map((n) => totals.get(n) || 0);
-    return { catNames: names, catTotals: vals };
-  }, [rows]);
-
+  // Doughnut chart (category totals)
+  const expenseColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
   const doughnutData: ChartData<"doughnut"> = {
     labels: catNames,
     datasets: [
       {
-        data: catTotals,
-        backgroundColor: catTotals.map((_, i) => doughnutColors[i % doughnutColors.length]),
+        data: catFreqs,
+        backgroundColor: catFreqs.map((_, i) => expenseColors[i % expenseColors.length]),
         borderColor: "#ffffff",
         borderWidth: 2,
         hoverOffset: 6,
@@ -186,7 +174,7 @@ const ExpenseScreen: React.FC = () => {
         callbacks: {
           label: (ctx) => {
             const val = Number(ctx.parsed) || 0;
-            const total = (Array.isArray(catTotals) ? catTotals : []).reduce((a, b) => a + b, 0) || 1;
+            const total = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0) || 1;
             const pct = Math.round((val / total) * 100);
             return ` ${ctx.label}: ${currency(val)} · ${pct}%`;
           },
@@ -194,7 +182,7 @@ const ExpenseScreen: React.FC = () => {
       },
     },
   };
-  const totalByCat = (Array.isArray(catTotals) ? catTotals : []).reduce((a, b) => a + b, 0);
+  const totalExpense = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
   // Modal handlers
   const openModal = () => setModalOpen(true);
@@ -212,27 +200,39 @@ const ExpenseScreen: React.FC = () => {
       alert("Please fill Title, Category, valid Amount, and Date.");
       return;
     }
-    // Frontend-only add; replace with backend POST later
-    setRows((prev) => [
-      ...prev,
-      {
-        id: `e${Date.now()}`,
-        title: draft.title.trim(),
-        amount: amt,
-        categoryName: draft.category.trim(),
-        notes: draft.notes.trim(),
+    // Persist
+    dispatch(
+      createExpense({
+        title: draft.title,
+        amount: String(amt),
+        categoryName: draft.category,
+        notes: draft.notes,
         date: draft.date,
-      },
-    ]);
+      })
+    ).finally(() => {
+      dispatch(expense());
+      dispatch(categoryExpense());
+    });
+
     closeModal();
-    setDraft({ title: "", amount: "", category: "", notes: "", date: new Date().toISOString().slice(0, 10) });
+    setDraft({
+      title: "",
+      amount: "",
+      category: "",
+      notes: "",
+      date: new Date().toISOString().slice(0, 10),
+    });
   };
 
-  // Delete handler (frontend-only for now)
+  // Delete handler (supports string | number ids)
   const onDeleteExpense = (id: string | number) => {
-    if (confirm("Delete this expense item?")) {
-      setRows((prev) => prev.filter((r) => r.id !== id));
-    }
+    if (!confirm("Delete this expense item?")) return;
+    // If your thunk requires a number, coerce safely:
+    const numericId = typeof id === "string" ? Number(id) : id;
+    dispatch(deleteExpense(numericId as number)).then(() => {
+      dispatch(expense());
+      dispatch(categoryExpense());
+    });
   };
 
   return (
@@ -267,11 +267,11 @@ const ExpenseScreen: React.FC = () => {
               </div>
               <ul className="pie-legend">
                 {catNames.map((lbl, i) => {
-                  const val = catTotals[i] ?? 0;
-                  const pct = totalByCat ? Math.round((val / totalByCat) * 100) : 0;
+                  const val = catFreqs[i] ?? 0;
+                  const pct = totalExpense ? Math.round((val / totalExpense) * 100) : 0;
                   return (
                     <li key={`${lbl}-${i}`} className="pie-legend-item">
-                      <span className="dot" style={{ background: doughnutColors[i % doughnutColors.length] }} />
+                      <span className="dot" style={{ background: expenseColors[i % expenseColors.length] }} />
                       <span className="name">{lbl}</span>
                       <span className="val">
                         {currency(Number(val) || 0)} · {pct}%
@@ -322,7 +322,12 @@ const ExpenseScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg down">- {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-red chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete expense" title="Delete" onClick={() => onDeleteExpense(item.id)}>
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete expense"
+                    title="Delete"
+                    onClick={() => onDeleteExpense(item.id)}
+                  >
                     <MdDelete size={18} />
                   </button>
                 </div>
@@ -345,7 +350,12 @@ const ExpenseScreen: React.FC = () => {
                 <div className="list-right">
                   <span className="amount amount-lg down">- {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-red chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete expense" title="Delete" onClick={() => onDeleteExpense(item.id)}>
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete expense"
+                    title="Delete"
+                    onClick={() => onDeleteExpense(item.id)}
+                  >
                     <MdDelete size={18} />
                   </button>
                 </div>

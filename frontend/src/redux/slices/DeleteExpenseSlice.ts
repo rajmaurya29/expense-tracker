@@ -2,10 +2,10 @@ import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 
 
-export const categoryExpense=createAsyncThunk(
-    "categoryExpense",async (_,thunkAPI)=>{
+export const deleteExpense=createAsyncThunk(
+    "deleteExpense",async (id:number,thunkAPI)=>{
         try{
-            const response= await axios.get("http://127.0.0.1:8000/expense/expenseCategory/",
+            const response= await axios.delete(`http://127.0.0.1:8000/expense/delete/${id}`,
                { withCredentials:true}
             )
             return response.data;
@@ -17,35 +17,35 @@ export const categoryExpense=createAsyncThunk(
 }
 )
 
-interface CategoryExpenseState{
+interface ExpenseState{
     expense:any,
     loading:boolean,
     error:any
 }
 
-const initialState:CategoryExpenseState={
+const initialState:ExpenseState={
     expense:[],
     loading:false,
     error:null
 };
 
-const CategoryExpenseSlice=createSlice({
-    name:"CategoryExpense",
+const DeleteExpenseSlice=createSlice({
+    name:"deleteExpense",
     initialState,
     reducers:{},
     extraReducers:(builder)=>{
-        builder.addCase(categoryExpense.pending,(state)=>{
+        builder.addCase(deleteExpense.pending,(state)=>{
             state.loading=true,
             state.error=null
         });
-        builder.addCase(categoryExpense.fulfilled,(state,action)=>{
+        builder.addCase(deleteExpense.fulfilled,(state,action)=>{
             state.expense=action.payload
         })
-        builder.addCase(categoryExpense.rejected,(state,action)=>{
+        builder.addCase(deleteExpense.rejected,(state,action)=>{
             state.loading=false,
             state.error=action.payload
         })
     }
 })
 
-export default CategoryExpenseSlice.reducer
+export default DeleteExpenseSlice.reducer
