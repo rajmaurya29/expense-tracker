@@ -1,0 +1,183 @@
+import React, { useMemo } from "react";
+import { Doughnut } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Title,
+} from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
+import { MdArrowOutward } from "react-icons/md";
+
+ChartJS.register(ArcElement, Tooltip, Legend, Title);
+
+type Txn = {
+  id: string | number;
+  title: string;
+  date: string;         // e.g., "17th Feb 2025"
+  amount: number;       // positive income, negative expense
+  icon?: string;        // optional emoji/URL/placeholder
+};
+
+// Mocked KPIs and transactions (replace with Redux/API)
+const totalBalance = 91100;
+const totalIncome = 98200;
+const totalExpenses = 7100;
+
+const recentTxns: Txn[] = [
+  { id: "t1", title: "Shopping", date: "17th Feb 2025", amount: -430, icon: "🛍️" },
+  { id: "t2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
+  { id: "t3", title: "Salary", date: "12th Feb 2025", amount: 12000, icon: "💼" },
+  { id: "t4", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
+  { id: "t5", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
+];
+
+const currency = (n: number) =>
+  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+
+// Financial overview doughnut (purple + orange + red like screenshot)
+const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"]; // balance (purple), income (orange), expenses (red)
+
+const DashboardScreen: React.FC = () => {
+  // If connecting to backend later, compute these from store selectors
+  const kpi = useMemo(
+    () => ({
+      balance: totalBalance,
+      income: totalIncome,
+      expenses: totalExpenses,
+    }),
+    []
+  );
+
+  const doughnutData: ChartData<"doughnut"> = useMemo(() => {
+    const values = [kpi.balance, kpi.income, kpi.expenses];
+    return {
+      labels: ["Total Balance", "Total Income", "Total Expenses"],
+      datasets: [
+        {
+          data: values.map((v) => Math.max(0, Number(v) || 0)),
+          backgroundColor: doughnutColors,
+          borderColor: "#ffffff",
+          borderWidth: 2,
+          hoverOffset: 6,
+        },
+      ],
+    };
+  }, [kpi]);
+
+  const doughnutOptions: ChartOptions<"doughnut"> = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: "64%",
+    plugins: {
+      legend: { display: false },
+      title: { display: false },
+      tooltip: {
+        backgroundColor: "#111827",
+        titleColor: "#fff",
+        bodyColor: "#fff",
+        padding: 10,
+        callbacks: {
+          label: (ctx) => {
+            const val = Number(ctx.parsed) || 0;
+            return ` ${ctx.label}: ${currency(val)}`;
+          },
+        },
+      },
+    },
+  };
+
+  return (
+    <div className="page-wrap page-lg">
+      {/* KPI cards */}
+      <section className="card card-elevated card-lg" style={{ paddingBottom: 0 }}>
+        <div className="kpi-grid">
+          <div className="kpi-card">
+            <div className="kpi-icon kpi-purple">💳</div>
+            <div className="kpi-meta">
+              <div className="kpi-title">Total Balance</div>
+              <div className="kpi-value">{currency(kpi.balance)}</div>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-icon kpi-orange">🧾</div>
+            <div className="kpi-meta">
+              <div className="kpi-title">Total Income</div>
+              <div className="kpi-value">{currency(kpi.income)}</div>
+            </div>
+          </div>
+
+          <div className="kpi-card">
+            <div className="kpi-icon kpi-red">💸</div>
+            <div className="kpi-meta">
+              <div className="kpi-title">Total Expenses</div>
+              <div className="kpi-value">{currency(kpi.expenses)}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Two-column main: Recent Transactions (left) + Financial Overview (right) */}
+      <section className="card card-elevated card-lg">
+        <div className="dash-grid">
+          {/* Left: Recent Transactions */}
+          <div className="dash-left">
+            <div className="dash-head">
+              <h3 className="card-title">Recent Transactions</h3>
+              <button className="btn btn-outline btn-pill" style={{ width: "auto" }}>
+                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              </button>
+            </div>
+
+            <ul className="dash-list">
+              {recentTxns.map((t) => {
+                const isExpense = t.amount < 0;
+                return (
+                  <li key={t.id} className="dash-row hoverable">
+                    <div className="dash-left-row">
+                      <div className="dash-avatar" aria-hidden>
+                        <span className="dash-emoji">{t.icon || "🧾"}</span>
+                      </div>
+                      <div>
+                        <div className="dash-title">{t.title}</div>
+                        <div className="dash-sub">{t.date}</div>
+                      </div>
+                    </div>
+                    <div className={`dash-amt ${isExpense ? "down" : "up"}`}>
+                      {isExpense ? "− " : "+ "}
+                      {currency(Math.abs(t.amount))}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          {/* Right: Financial Overview doughnut */}
+          <div className="dash-right">
+            <h3 className="card-title" style={{ marginBottom: 12 }}>Financial Overview</h3>
+            <div className="doughnut-wrap">
+              <div className="doughnut-box">
+                <Doughnut data={doughnutData} options={doughnutOptions} />
+                <div className="doughnut-center">
+                  <div className="center-title">Total Balance</div>
+                  <div className="center-value">{currency(kpi.balance)}</div>
+                </div>
+              </div>
+
+              <ul className="legend">
+                <li><span className="dot" style={{ background: "#7c3aed" }} /> Total Balance</li>
+                <li><span className="dot" style={{ background: "#fb923c" }} /> Total Income</li>
+                <li><span className="dot" style={{ background: "#ef4444" }} /> Total Expenses</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default DashboardScreen;

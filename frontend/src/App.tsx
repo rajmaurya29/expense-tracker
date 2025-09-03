@@ -10,6 +10,7 @@ import SignUpScreen from './screens/SignUpScreen'
 import LogoutScreen from "./screens/LogoutScreen";
 import IncomeScreen from "./screens/IncomeScreen";
 import ExpenseScreen from "./screens/ExpenseScreen";
+import DashboardScreen from "./screens/DashboardScreen";
 
 const HEADER_HEIGHT = 54;
 const SIDEBAR_WIDTH = 260;
@@ -51,7 +52,7 @@ const Shell: React.FC = () => {
         }}
       >
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<DashboardScreen/>} />
 
           <Route path="/login" element={<LoginScreen/>} />
           <Route path="/logout" element={<LogoutScreen/>} />
