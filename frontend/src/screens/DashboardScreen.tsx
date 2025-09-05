@@ -19,7 +19,7 @@ type Txn = {
   amount: number;       // positive income, negative expense
   icon?: string;        // optional emoji/URL/placeholder
 };
-
+ 
 // Mocked KPIs and transactions (replace with Redux/API)
 const totalBalance = 91100;
 const totalIncome = 98200;
