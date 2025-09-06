@@ -11,7 +11,7 @@ import type { ChartData, ChartOptions } from "chart.js";
 import { MdArrowOutward } from "react-icons/md";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
-
+ 
 type Txn = {
   id: string | number;
   title: string;
