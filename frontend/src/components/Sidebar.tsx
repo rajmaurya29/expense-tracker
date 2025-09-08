@@ -112,7 +112,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             <li style={{ margin: "10px 0" }}>
               <NavLink
-                to="/dashboard"
+                to="/"
                 style={({ isActive }) => ({
                   ...linkBase,
                   background: isActive ? "#8b5cf6" : "transparent",

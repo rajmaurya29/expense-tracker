@@ -11,20 +11,21 @@ import type { ChartData, ChartOptions } from "chart.js";
 import { MdArrowOutward } from "react-icons/md";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
- 
+
 type Txn = {
   id: string | number;
   title: string;
-  date: string;         // e.g., "17th Feb 2025"
-  amount: number;       // positive income, negative expense
-  icon?: string;        // optional emoji/URL/placeholder
+  date: string;   // e.g., "17th Feb 2025"
+  amount: number; // positive income, negative expense
+  icon?: string;
 };
- 
-// Mocked KPIs and transactions (replace with Redux/API)
+
+// Mock KPIs (wire to Redux/API later)
 const totalBalance = 91100;
 const totalIncome = 98200;
 const totalExpenses = 7100;
 
+// Mock lists
 const recentTxns: Txn[] = [
   { id: "t1", title: "Shopping", date: "17th Feb 2025", amount: -430, icon: "🛍️" },
   { id: "t2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
@@ -33,20 +34,29 @@ const recentTxns: Txn[] = [
   { id: "t5", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
 ];
 
+// Bottom cards data
+const incomeList: Txn[] = [
+  { id: "i1", title: "Salary", date: "12th Feb 2025", amount: 12000, icon: "💼" },
+  { id: "i2", title: "Side Project", date: "08th Feb 2025", amount: 800, icon: "🧑‍💻" },
+  { id: "i3", title: "Dividends", date: "05th Feb 2025", amount: 320, icon: "🏦" },
+  { id: "i4", title: "Freelance", date: "02nd Feb 2025", amount: 950, icon: "🧾" },
+];
+
+const expenseList: Txn[] = [
+  { id: "e1", title: "Shopping", date: "17th Feb 2025", amount: -430, icon: "🛍️" },
+  { id: "e2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
+  { id: "e3", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
+  { id: "e4", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
+];
+
 const currency = (n: number) =>
   n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 
-// Financial overview doughnut (purple + orange + red like screenshot)
-const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"]; // balance (purple), income (orange), expenses (red)
+const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"]; // balance, income, expenses
 
 const DashboardScreen: React.FC = () => {
-  // If connecting to backend later, compute these from store selectors
   const kpi = useMemo(
-    () => ({
-      balance: totalBalance,
-      income: totalIncome,
-      expenses: totalExpenses,
-    }),
+    () => ({ balance: totalBalance, income: totalIncome, expenses: totalExpenses }),
     []
   );
 
@@ -79,10 +89,7 @@ const DashboardScreen: React.FC = () => {
         bodyColor: "#fff",
         padding: 10,
         callbacks: {
-          label: (ctx) => {
-            const val = Number(ctx.parsed) || 0;
-            return ` ${ctx.label}: ${currency(val)}`;
-          },
+          label: (ctx) => ` ${ctx.label}: ${currency(Number(ctx.parsed) || 0)}`,
         },
       },
     },
@@ -119,10 +126,10 @@ const DashboardScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* Two-column main: Recent Transactions (left) + Financial Overview (right) */}
+      {/* Recent + Doughnut */}
       <section className="card card-elevated card-lg">
         <div className="dash-grid">
-          {/* Left: Recent Transactions */}
+          {/* Recent Transactions */}
           <div className="dash-left">
             <div className="dash-head">
               <h3 className="card-title">Recent Transactions</h3>
@@ -155,7 +162,7 @@ const DashboardScreen: React.FC = () => {
             </ul>
           </div>
 
-          {/* Right: Financial Overview doughnut */}
+          {/* Financial Overview */}
           <div className="dash-right">
             <h3 className="card-title" style={{ marginBottom: 12 }}>Financial Overview</h3>
             <div className="doughnut-wrap">
@@ -173,6 +180,65 @@ const DashboardScreen: React.FC = () => {
                 <li><span className="dot" style={{ background: "#ef4444" }} /> Total Expenses</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom: Incomes (left) and Expanses (right) */}
+      <section className="card card-elevated card-lg">
+        <div className="two-col">
+          {/* Incomes (LEFT) */}
+          <div className="card-block">
+            <div className="dash-head">
+              <h3 className="card-title">Incomes</h3>
+              <button className="btn btn-outline btn-pill" style={{ width: "auto" }}>
+                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              </button>
+            </div>
+
+            <ul className="dash-list">
+              {incomeList.map((t) => (
+                <li key={t.id} className="dash-row hoverable">
+                  <div className="dash-left-row">
+                    <div className="dash-avatar" aria-hidden>
+                      <span className="dash-emoji">{t.icon || "🧾"}</span>
+                    </div>
+                    <div>
+                      <div className="dash-title">{t.title}</div>
+                      <div className="dash-sub">{t.date}</div>
+                    </div>
+                  </div>
+                  <div className="badge badge-green">+ {currency(Math.abs(t.amount))}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Expanses (RIGHT) */}
+          <div className="card-block">
+            <div className="dash-head">
+              <h3 className="card-title">Expanses</h3>
+              <button className="btn btn-outline btn-pill" style={{ width: "auto" }}>
+                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              </button>
+            </div>
+
+            <ul className="dash-list">
+              {expenseList.map((t) => (
+                <li key={t.id} className="dash-row hoverable">
+                  <div className="dash-left-row">
+                    <div className="dash-avatar" aria-hidden>
+                      <span className="dash-emoji">{t.icon || "🧾"}</span>
+                    </div>
+                    <div>
+                      <div className="dash-title">{t.title}</div>
+                      <div className="dash-sub">{t.date}</div>
+                    </div>
+                  </div>
+                  <div className="badge badge-red">− {currency(Math.abs(t.amount))}</div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </section>

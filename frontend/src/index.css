@@ -455,3 +455,16 @@
 
 .legend { list-style: none; padding: 0; margin: 0; display: flex; gap: 14px; flex-wrap: wrap; color: #374151; }
 .legend .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.two-col { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 1024px){ .two-col { grid-template-columns: 1fr 1fr; } }
+.card-block { display: grid; gap: 12px; }
+
+.badge { font-weight: 800; font-size: 14px; padding: 8px 12px; border-radius: 10px; border: 1px solid transparent; }
+.badge-red { color: #b91c1c; background: #fee2e2; border-color: #fecaca; }
+.badge-green { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+
+/* This relies on your existing classes from earlier screens:
+.kpi-grid, .kpi-card, .kpi-icon, .kpi-title, .kpi-value,
+.dash-grid, .dash-left, .dash-right, .dash-head,
+.dash-list, .dash-row, .dash-avatar, .dash-title, .dash-sub,
+.doughnut-box, .doughnut-center, .legend, etc. */
