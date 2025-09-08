@@ -468,3 +468,59 @@
 .dash-grid, .dash-left, .dash-right, .dash-head,
 .dash-list, .dash-row, .dash-avatar, .dash-title, .dash-sub,
 .doughnut-box, .doughnut-center, .legend, etc. */
+/* Tighten section internal padding slightly for dense look */
+.section-tight { padding-top: 16px !important; padding-bottom: 10px !important; }
+
+/* KPI spacing balance */
+.kpi-grid-balanced { gap: 14px; }
+.kpi-card { padding: 16px; }
+
+/* Two-column layout and alignment */
+.dash-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 1024px){ .dash-grid { grid-template-columns: 1.25fr 1fr; } } /* give recent a bit more width */
+.align-stretch { align-items: stretch; }
+
+/* Heads */
+.dash-head { display:flex; align-items:center; justify-content:space-between; }
+.spaced { margin-bottom: 10px; }
+.spaced-right { margin-bottom: 6px; }
+.btn-compact { padding: 8px 12px; border-radius: 10px; }
+
+/* Lists density and rows */
+.dash-list { list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+.dense { gap: 10px; }
+.dash-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 12px; border:1px solid #eef2f7; border-radius:12px; background:#fff; }
+.row-tight { padding: 10px 12px; }
+.dash-left-row { display:flex; align-items:center; gap:12px; }
+.dash-avatar { width:40px; height:40px; border-radius:10px; background:#f3f4f6; display:grid; place-items:center; }
+.dash-emoji { font-size:18px; }
+.dash-title { font-weight:800; color:#111827; }
+.dash-sub { font-size:12px; color:#6b7280; }
+.dash-amt { font-weight:800; }
+.dash-amt.up { color:#16a34a; }
+.dash-amt.down { color:#ef4444; }
+
+/* Doughnut alignment and height */
+.doughnut-wrap { display:grid; gap:12px; }
+.center-v { display:grid; align-content:center; } /* centers chart vertically in column */
+.doughnut-box { position:relative; width:100%; max-width:520px; height: 340px; margin-inline:auto; }
+@media (min-width: 1280px){ .doughnut-box { height: 380px; } }
+.doughnut-tall { height: 360px; }
+.doughnut-center { position:absolute; inset:0; display:grid; place-items:center; text-align:center; pointer-events:none; }
+.doughnut-center .center-title { font-size:12px; color:#6b7280; font-weight:700; }
+.doughnut-center .center-value { font-size:22px; font-weight:900; color:#111827; }
+
+/* Legend spacing */
+.legend { list-style:none; padding:0; margin:0; display:flex; gap:14px; flex-wrap:wrap; color:#374151; }
+.legend-tight { gap: 12px; }
+.legend .dot { width:12px; height:12px; border-radius:50%; display:inline-block; margin-right:6px; }
+
+/* Bottom two-column */
+.two-col { display:grid; grid-template-columns:1fr; gap:16px; }
+@media (min-width:1024px){ .two-col { grid-template-columns:1fr 1fr; } }
+.card-block { display:grid; gap:12px; }
+
+/* Badges */
+.badge { font-weight:800; font-size:14px; padding:8px 12px; border-radius:10px; border:1px solid transparent; }
+.badge-red { color:#b91c1c; background:#fee2e2; border-color:#fecaca; }
+.badge-green { color:#047857; background:#ecfdf5; border-color:#a7f3d0; }
