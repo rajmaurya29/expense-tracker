@@ -190,3 +190,10 @@ CSRF_TRUSTED_ORIGINS = [
 # CSRF_COOKIE_SAMESITE = "None"
 # CSRF_COOKIE_SECURE = False
 
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "heyho5278@gmail.com"          # your Gmail
+EMAIL_HOST_PASSWORD = "wjdqzkimklsgknke"        # 16-char App Password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
