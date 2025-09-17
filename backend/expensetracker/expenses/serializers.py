@@ -32,3 +32,10 @@ class IncomeSerializer(serializers.ModelSerializer):
         fields=['id','user','source','amount','categoryName','date','notes']
     def get_categoryName(self,obj):
         return obj.category.name
+
+class RecentTransactionsSerializer(serializers.Serializer):
+    title=serializers.CharField(max_length=100,required=True)
+    amount=serializers.DecimalField(max_digits=20,decimal_places=2)
+    category=serializers.CharField()
+    date=serializers.DateField()
+    notes=serializers.CharField(max_length=500)

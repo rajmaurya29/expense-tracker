@@ -6,8 +6,10 @@ from rest_framework.decorators import permission_classes
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.permissions import IsAuthenticated,IsAdminUser
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from expenses.serializers import UserSerializer
+from expenses.serializers import *
 from rest_framework.status import *
+from expenses.models import *
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -84,3 +86,32 @@ def logoutUser(request):
             path='/'
         )
     return response
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recentTransactions(request):
+    income=Income.objects.filter(user=request.user).order_by("-date")[:10]
+    income_data=[]
+    for i in income:
+        income_data.append({
+            "title":i.source,
+            "amount":i.amount,
+            "category":i.category,
+            "date":i.date,
+            "notes":i.notes
+        })
+    expense=Expense.objects.filter(user=request.user).order_by("-date")[:10]
+    expense_data=[]
+    for i in expense:
+        expense_data.append({
+            "title":i.title,
+            "amount":i.amount,
+            "category":i.category,
+            "date":i.date,
+            "notes":i.notes
+        })
+    transactions=income_data+expense_data
+    transactions.sort(key=lambda x:x["date"],reverse=True)
+    transactionsSerializer=RecentTransactionsSerializer(transactions[:10],many=True)
+    return Response(transactionsSerializer.data)
