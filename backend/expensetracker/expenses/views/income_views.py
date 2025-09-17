@@ -105,3 +105,11 @@ def income_category(request):
     # serializer=CategorySerializer(category,many=True)
     # print(serializer)
     return Response({"category_name":category_name,"category_frequency":category_frequency})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recentTransactionsIncome(request):
+    income=Income.objects.filter(user=request.user).order_by("-date")[:5]
+    serializer=IncomeSerializer(income,many=True)
+    return Response(serializer.data)

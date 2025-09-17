@@ -115,3 +115,17 @@ def recentTransactions(request):
     transactions.sort(key=lambda x:x["date"],reverse=True)
     transactionsSerializer=RecentTransactionsSerializer(transactions[:10],many=True)
     return Response(transactionsSerializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def total_detail(request):
+    income=Income.objects.filter(user=request.user)
+    income_value=0
+    for i in income:
+        income_value+=i.amount
+    expense=Expense.objects.filter(user=request.user)
+    expense_value=0
+    for i in expense:
+        expense_value+=i.amount
+    total_value=income_value+expense_value
+    return Response({"total amount":total_value,"total income":income_value,"total expense":expense_value})

@@ -107,3 +107,10 @@ def expense_category(request):
     # serializer=CategorySerializer(category,many=True)
     # print(serializer)
     return Response({"category_name":category_name,"category_frequency":category_frequency})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recentTransactionsExpense(request):
+    expense=Expense.objects.filter(user=request.user).order_by("-date")[:5]
+    serializer=ExpenseSerializer(expense,many=True)
+    return Response(serializer.data)
