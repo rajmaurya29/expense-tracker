@@ -106,7 +106,7 @@ def recentTransactions(request):
     for i in expense:
         expense_data.append({
             "title":i.title,
-            "amount":i.amount,
+            "amount":-1*i.amount,
             "category":i.category,
             "date":i.date,
             "notes":i.notes

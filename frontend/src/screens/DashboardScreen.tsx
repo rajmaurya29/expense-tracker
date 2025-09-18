@@ -1,4 +1,5 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import axios from "axios";
 import { Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -26,52 +27,148 @@ ChartJS.register(
 );
 
 type Txn = {
-  id: string | number;
+  // id: string | number;
   title: string;
   date: string;
-  amount: number;
+  amount: string;
+  category:string;
+  notes:string;
   icon?: string;
 };
 
+type TTxn = {
+  // id: string | number;
+  total: string;
+  income: string;
+  expense: string;
+};
 // KPIs (mock)
-const totalBalance = 91100;
-const totalIncome = 98200;
-const totalExpenses = 7100;
+// const totalBalance = 91100;
+// const totalIncome = 98200;
+// const totalExpenses = 7100;
+
 
 // Lists (mock)
-const recentTxns: Txn[] = [
-  { id: "t1", title: "Shopping", date: "17th Feb 2025", amount: -430, icon: "🛍️" },
-  { id: "t2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
-  { id: "t3", title: "Salary", date: "12th Feb 2025", amount: 12000, icon: "💼" },
-  { id: "t4", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
-  { id: "t5", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
-  { id: "t6", title: "Snacks", date: "09th Feb 2025", amount: -25, icon: "🍪" },
-  { id: "t7", title: "Freelance", date: "08th Feb 2025", amount: 950, icon: "🧾" },
-  { id: "t8", title: "Dividends", date: "05th Feb 2025", amount: 320, icon: "🏦" },
-  { id: "t9", title: "Fuel", date: "04th Feb 2025", amount: -70, icon: "⛽" },
-  { id: "t10", title: "Groceries", date: "02nd Feb 2025", amount: -120, icon: "🛒" },
-];
 
-const incomeList: Txn[] = [
-  { id: "i1", title: "Salary", date: "12th Feb 2025", amount: 12000, icon: "💼" },
-  { id: "i2", title: "Side Project", date: "08th Feb 2025", amount: 800, icon: "🧑‍💻" },
-  { id: "i3", title: "Dividends", date: "05th Feb 2025", amount: 320, icon: "🏦" },
-  { id: "i4", title: "Freelance", date: "02nd Feb 2025", amount: -500, icon: "🧾" }, // test negative
-];
 
-const expenseList: Txn[] = [
-  { id: "e1", title: "Shopping", date: "17th Feb 2025", amount: -430, icon: "🛍️" },
-  { id: "e2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
-  { id: "e3", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
-  { id: "e4", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
-];
+
+// const recentTxns: Txn[] = [
+// {
+//         "title": "rent",
+//         "amount": "239.00",
+//         "category": "Housing",
+//         "date": "2025-09-02",
+//         "notes": "no"
+//     }  // {  title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
+//   // { id: "t3", title: "Salary", date: "12th Feb 2025", amount: 12000, icon: "💼" },
+//   // { id: "t4", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
+//   // { id: "t5", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
+//   // { id: "t6", title: "Snacks", date: "09th Feb 2025", amount: -25, icon: "🍪" },
+//   // { id: "t7", title: "Freelance", date: "08th Feb 2025", amount: 950, icon: "🧾" },
+//   // { id: "t8", title: "Dividends", date: "05th Feb 2025", amount: 320, icon: "🏦" },
+//   // { id: "t9", title: "Fuel", date: "04th Feb 2025", amount: -70, icon: "⛽" },
+//   // { id: "t10", title: "Groceries", date: "02nd Feb 2025", amount: -120, icon: "🛒" },
+// ];
+
+// const incomeList: Txn[] = [
+// {
+//         "title": "rent",
+//         "amount": "-239.00",
+//         "category": "Housing",
+//         "date": "2025-09-02",
+//         "notes": "no"
+//     }   // { id: "i2", title: "Side Project", date: "08th Feb 2025", amount: 800, icon: "🧑‍💻" },
+//   // { id: "i3", title: "Dividends", date: "05th Feb 2025", amount: 320, icon: "🏦" },
+//   // { id: "i4", title: "Freelance", date: "02nd Feb 2025", amount: -500, icon: "🧾" }, // test negative
+// ];
+
+// const expenseList: Txn[] = [
+// {
+//         "title": "rent",
+//         "amount": "-239.00",
+//         "category": "Housing",
+//         "date": "2025-09-02",
+//         "notes": "no"
+//     }   // { id: "e2", title: "Travel", date: "13th Feb 2025", amount: -670, icon: "✈️" },
+//   // { id: "e3", title: "Electricity Bill", date: "11th Feb 2025", amount: -200, icon: "💡" },
+//   // { id: "e4", title: "Loan Repayment", date: "10th Feb 2025", amount: -600, icon: "🏦" },
+// ];
 
 const currency = (n: number) =>
-  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  n.toLocaleString(undefined, { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
 const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"];
 
 const DashboardScreen: React.FC = () => {
+
+  const[totalBalance,setTotalBalance]=useState("");
+  const[totalIncome,setTotalIncome]=useState("");
+  const[totalExpenses,setTotalExpenses]=useState("");
+  const[recentTxns,setRecentTxns]=useState<Txn[]>([])
+  const[incomeList,setIncomeList]=useState<Txn[]>([])
+  const[expenseList,setExpenseList]=useState<Txn[]>([])
+  useEffect(()=>{
+    const fetchTotal=async ()=>{
+      try{
+        const res=await axios.get<TTxn[]>("http://127.0.0.1:8000/users/total/",
+          {withCredentials:true}
+        );
+        setTotalBalance(String(res.data[0]))
+        setTotalIncome(String(res.data[1]))
+        setTotalExpenses(String(res.data[2]))
+        console.log(res.data[0])
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    fetchTotal();
+  },[])
+  useEffect(()=>{
+    const fetchTransactions=async ()=>{
+      try{
+        const res=await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/",
+          {withCredentials:true}
+        );
+        setRecentTxns(res.data)
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    fetchTransactions();
+  },[])
+
+  useEffect(()=>{
+    const fetchIncome=async ()=>{
+      try{
+        const res=await axios.get<Txn[]>("http://127.0.0.1:8000/income/transactions/",
+          {withCredentials:true}
+        );
+        setIncomeList(res.data)
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    fetchIncome();
+  },[])
+
+  useEffect(()=>{
+    const fetchExpense=async ()=>{
+      try{
+        const res=await axios.get<Txn[]>("http://127.0.0.1:8000/expense/transactions/",
+          {withCredentials:true}
+        );
+        setExpenseList(res.data)
+      }
+      catch(error){
+        console.log(error);
+      }
+    }
+    fetchExpense();
+  },[])
+
   const kpi = useMemo(
     () => ({ balance: totalBalance, income: totalIncome, expenses: totalExpenses }),
     []
@@ -80,11 +177,11 @@ const DashboardScreen: React.FC = () => {
   // Top-left Line Chart (category x-axis)
   const lineData: ChartData<"line"> = useMemo(() => {
     return {
-      labels: incomeList.map((t) => t.date),
+      labels: recentTxns.map((t) => t.date),
       datasets: [
         {
           label: "Total Income",
-          data: incomeList.map((t) => t.amount),
+          data: recentTxns.map((t) => Number(t.amount)),
           borderColor: "#7c3aed",
           backgroundColor: "rgba(124, 58, 237, 0.2)",
           fill: true,
@@ -189,7 +286,7 @@ const DashboardScreen: React.FC = () => {
                 <Doughnut data={doughnutData} options={doughnutOptions} />
                 <div className="doughnut-center">
                   <div className="center-title">Total Balance</div>
-                  <div className="center-value">{currency(kpi.balance)}</div>
+                  <div className="center-value">{currency(Number(totalBalance))}</div>
                 </div>
               </div>
               <ul className="legend">
@@ -209,21 +306,21 @@ const DashboardScreen: React.FC = () => {
             <div className="kpi-icon kpi-purple">💳</div>
             <div className="kpi-meta">
               <div className="kpi-title">Total Balance</div>
-              <div className="kpi-value">{currency(kpi.balance)}</div>
+              <div className="kpi-value">{currency(Number(totalBalance))}</div>
             </div>
           </div>
           <div className="kpi-card">
             <div className="kpi-icon kpi-orange">🧾</div>
             <div className="kpi-meta">
               <div className="kpi-title">Total Income</div>
-              <div className="kpi-value">{currency(kpi.income)}</div>
+              <div className="kpi-value">{currency(Number(totalIncome))}</div>
             </div>
           </div>
           <div className="kpi-card">
             <div className="kpi-icon kpi-red">💸</div>
             <div className="kpi-meta">
               <div className="kpi-title">Total Expenses</div>
-              <div className="kpi-value">{currency(kpi.expenses)}</div>
+              <div className="kpi-value">{currency(Number(totalExpenses))}</div>
             </div>
           </div>
         </div>
@@ -241,10 +338,10 @@ const DashboardScreen: React.FC = () => {
               </button>
             </div>
             <ul className="dash-list dense">
-              {leftRecent.map((t) => {
-                const isExpense = t.amount < 0;
+              {leftRecent.map((t,index) => {
+                const isExpense = Number(t.amount) < 0;
                 return (
-                  <li key={t.id} className="dash-row hoverable row-tight">
+                  <li key={index} className="dash-row hoverable row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -256,7 +353,7 @@ const DashboardScreen: React.FC = () => {
                     </div>
                     <div className={`dash-amt ${isExpense ? "down" : "up"}`}>
                       {isExpense ? "− " : "+ "}
-                      {currency(Math.abs(t.amount))}
+                      {currency(Math.abs(Number(t.amount)))}
                     </div>
                   </li>
                 );
@@ -273,10 +370,10 @@ const DashboardScreen: React.FC = () => {
               </button>
             </div>
             <ul className="dash-list dense">
-              {rightRecent.map((t) => {
-                const isExpense = t.amount < 0;
+              {rightRecent.map((t,index) => {
+                const isExpense = Number(t.amount) < 0;
                 return (
-                  <li key={t.id} className="dash-row hoverable row-tight">
+                  <li key={index} className="dash-row hoverable row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -288,7 +385,7 @@ const DashboardScreen: React.FC = () => {
                     </div>
                     <div className={`dash-amt ${isExpense ? "down" : "up"}`}>
                       {isExpense ? "− " : "+ "}
-                      {currency(Math.abs(t.amount))}
+                      {currency(Math.abs(Number(t.amount)))}
                     </div>
                   </li>
                 );
@@ -311,8 +408,8 @@ const DashboardScreen: React.FC = () => {
             </div>
 
             <ul className="dash-list dense">
-              {incomeList.map((t) => (
-                <li key={t.id} className="dash-row hoverable row-tight">
+              {incomeList.map((t,index) => (
+                <li key={index} className="dash-row hoverable row-tight">
                   <div className="dash-left-row">
                     <div className="dash-avatar" aria-hidden>
                       <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -322,9 +419,9 @@ const DashboardScreen: React.FC = () => {
                       <div className="dash-sub">{t.date}</div>
                     </div>
                   </div>
-                  <div className={`badge ${t.amount >= 0 ? "badge-green" : "badge-red"}`}>
-                    {t.amount >= 0 ? "+ " : "− "}
-                    {currency(Math.abs(t.amount))}
+                  <div className={`badge ${Number(t.amount) >= 0 ? "badge-green" : "badge-red"}`}>
+                    {Number(t.amount) >= 0 ? "+ " : "− "}
+                    {currency(Math.abs(Number(t.amount)))}
                   </div>
                 </li>
               ))}
@@ -341,8 +438,8 @@ const DashboardScreen: React.FC = () => {
             </div>
 
             <ul className="dash-list dense">
-              {expenseList.map((t) => (
-                <li key={t.id} className="dash-row hoverable row-tight">
+              {expenseList.map((t,index) => (
+                <li key={index} className="dash-row hoverable row-tight">
                   <div className="dash-left-row">
                     <div className="dash-avatar" aria-hidden>
                       <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -352,7 +449,7 @@ const DashboardScreen: React.FC = () => {
                       <div className="dash-sub">{t.date}</div>
                     </div>
                   </div>
-                  <div className="badge badge-red">− {currency(Math.abs(t.amount))}</div>
+                  <div className="badge badge-red">− {currency(Math.abs(Number(t.amount)))}</div>
                 </li>
               ))}
             </ul>
