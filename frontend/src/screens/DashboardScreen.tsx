@@ -55,9 +55,7 @@ const inr = new Intl.NumberFormat(undefined, {
   currency: "INR",
   maximumFractionDigits: 0,
 });
-
 const currency = (n: number) => inr.format(n);
-
 const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"];
 
 const DashboardScreen: React.FC = () => {
@@ -105,7 +103,6 @@ const DashboardScreen: React.FC = () => {
           withCredentials: true,
         });
         setIncomeList(res.data ?? []);
-        console.log(res.data)
       } catch (error) {
         console.log(error);
       }
@@ -127,7 +124,6 @@ const DashboardScreen: React.FC = () => {
     fetchExpense();
   }, []);
 
-  // Keep KPI derived object responsive to updates
   const kpi = useMemo(
     () => ({
       balance: totalBalance,
@@ -137,7 +133,6 @@ const DashboardScreen: React.FC = () => {
     [totalBalance, totalIncome, totalExpenses]
   );
 
-  // Build line chart from recentTxns and allow negative values (expenses)
   const lineData: ChartData<"line"> = useMemo(() => {
     const labels = recentTxns.map((t) => t.date);
     const values = recentTxns.map((t) => Number(t.amount) || 0);
@@ -163,6 +158,7 @@ const DashboardScreen: React.FC = () => {
   const lineOptions: ChartOptions<"line"> = useMemo(
     () => ({
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: {
           display: true,
@@ -243,7 +239,6 @@ const DashboardScreen: React.FC = () => {
     []
   );
 
-  // Recent Transactions split (5 left + 5 right)
   const leftRecent = recentTxns.slice(0, 5);
   const rightRecent = recentTxns.slice(5, 10);
 
@@ -251,22 +246,22 @@ const DashboardScreen: React.FC = () => {
     <div className="page-wrap page-lg">
       {/* TOP: Left = Line, Right = Doughnut */}
       <section className="card card-elevated card-lg">
-        <div className="dash-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="dash-grid responsive-grid-2">
           <div className="chart-left">
-            <div className="chartjs-box" style={{ height: 360 }}>
+            <div className="chartjs-box fluid-chart h-360 md:h-320 sm:h-260">
               <Line data={lineData} options={lineOptions} />
             </div>
           </div>
           <div className="chart-right">
             <div className="doughnut-wrap">
-              <div className="doughnut-box" style={{ height: 360, maxWidth: 460, width: "100%" }}>
+              <div className="doughnut-box fluid-chart h-360 md:h-320 sm:h-260 max-w-460">
                 <Doughnut data={doughnutData} options={doughnutOptions} />
                 <div className="doughnut-center">
                   <div className="center-title">Total Balance</div>
                   <div className="center-value">{currency(Number(totalBalance) || 0)}</div>
                 </div>
               </div>
-              <ul className="legend">
+              <ul className="legend wrap sm:stack">
                 <li><span className="dot" style={{ background: "#7c3aed" }} /> Total Balance</li>
                 <li><span className="dot" style={{ background: "#fb923c" }} /> Total Income</li>
                 <li><span className="dot" style={{ background: "#ef4444" }} /> Total Expenses</li>
@@ -278,7 +273,7 @@ const DashboardScreen: React.FC = () => {
 
       {/* KPIs */}
       <section className="card card-elevated card-lg section-tight">
-        <div className="kpi-grid kpi-grid-balanced">
+        <div className="kpi-grid kpi-grid-balanced kpi-responsive">
           <div className="kpi-card">
             <div className="kpi-icon kpi-purple">💳</div>
             <div className="kpi-meta">
@@ -305,16 +300,16 @@ const DashboardScreen: React.FC = () => {
 
       {/* RECENT: Left 5 + Right 5 */}
       <section className="card card-elevated card-lg">
-        <div className="dash-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="dash-grid responsive-grid-2">
           {/* Left: 5 most recent */}
           <div className="dash-left">
             <div className="dash-head spaced">
               <h3 className="card-title">Recent Transactions</h3>
-              <button className="btn btn-outline btn-pill btn-compact" style={{ width: "auto" }}>
+              <button className="btn btn-outline btn-pill btn-compact">
                 See All <MdArrowOutward style={{ marginLeft: 6 }} />
               </button>
             </div>
-            <ul className="dash-list dense">
+            <ul className="dash-list dense sm:scroll-y">
               {leftRecent.map((t, index) => {
                 const amt = Number(t.amount) || 0;
                 const isExpense = amt < 0;
@@ -343,11 +338,11 @@ const DashboardScreen: React.FC = () => {
           <div className="dash-right">
             <div className="dash-head spaced-right">
               <h3 className="card-title">More Transactions</h3>
-              <button className="btn btn-outline btn-pill btn-compact" style={{ width: "auto" }}>
+              <button className="btn btn-outline btn-pill btn-compact">
                 See All <MdArrowOutward style={{ marginLeft: 6 }} />
               </button>
             </div>
-            <ul className="dash-list dense">
+            <ul className="dash-list dense sm:scroll-y">
               {rightRecent.map((t, index) => {
                 const amt = Number(t.amount) || 0;
                 const isExpense = amt < 0;
@@ -376,17 +371,16 @@ const DashboardScreen: React.FC = () => {
 
       {/* Bottom: Incomes (left) and Expenses (right) */}
       <section className="card card-elevated card-lg">
-        <div className="two-col">
+        <div className="two-col responsive-grid-2">
           {/* Incomes */}
           <div className="card-block">
             <div className="dash-head spaced">
               <h3 className="card-title">Incomes</h3>
-              <button className="btn btn-outline btn-pill btn-compact" style={{ width: "auto" }}>
+              <button className="btn btn-outline btn-pill btn-compact">
                 See All <MdArrowOutward style={{ marginLeft: 6 }} />
               </button>
             </div>
-
-            <ul className="dash-list dense">
+            <ul className="dash-list dense sm:scroll-y">
               {incomeList.map((t, index) => {
                 const amt = Number(t.amount) || 0;
                 const isPositive = amt >= 0;
@@ -415,12 +409,11 @@ const DashboardScreen: React.FC = () => {
           <div className="card-block">
             <div className="dash-head spaced">
               <h3 className="card-title">Expenses</h3>
-              <button className="btn btn-outline btn-pill btn-compact" style={{ width: "auto" }}>
+              <button className="btn btn-outline btn-pill btn-compact">
                 See All <MdArrowOutward style={{ marginLeft: 6 }} />
               </button>
             </div>
-
-            <ul className="dash-list dense">
+            <ul className="dash-list dense sm:scroll-y">
               {expenseList.map((t, index) => {
                 const amt = Number(t.amount) || 0;
                 return (
