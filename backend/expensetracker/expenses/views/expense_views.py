@@ -52,13 +52,13 @@ def get_expenses(request):
         filtered_data=Expense.objects.filter(
         user=user,
         category__name=category,
-    )
+    ).order_by("-date")
     else:
         # print(8)
         filtered_data=Expense.objects.filter(
             user=user,
-        )
-        print(filtered_data)
+        ).order_by("-date")
+        # print(filtered_data)
     serializer=ExpenseSerializer(filtered_data,many=True)
     return Response(serializer.data)
 

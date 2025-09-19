@@ -38,11 +38,11 @@ def get_incomes(request):
         filtered_data=Income.objects.filter(
         user=user,
         category__name=category,
-    )
+    ).order_by("-date")
     else:
         filtered_data=Income.objects.filter(
             user=user,
-        )
+        ).order_by("-date")
     serializer=IncomeSerializer(filtered_data,many=True)
     return Response(serializer.data)
 

@@ -127,5 +127,9 @@ def total_detail(request):
     expense_value=0
     for i in expense:
         expense_value+=i.amount
-    total_value=income_value+expense_value
+    total_value=income_value-expense_value
     return Response({"total amount":total_value,"total income":income_value,"total expense":expense_value})
+
+# @api_view(['GET'])
+# @permission_classes([IsAuthenticated])
+# def recentTotal(request):
