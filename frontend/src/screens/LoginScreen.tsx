@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
@@ -12,7 +12,12 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const userSelector=useSelector((s:RootState)=>s.userInfo)
+  
+    useEffect(()=>{
+      // console.log()
+      if(userSelector.userInfo) navigate("/");
+    },[userSelector])
   const handleSubmit = async (e: React.FormEvent) => {
     
     e.preventDefault();

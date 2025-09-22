@@ -18,6 +18,7 @@ import { MdDelete, MdClose } from "react-icons/md";
 import { createIncome } from "../redux/slices/CreateIncomeSlice";
 import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
 import { deleteIncome } from "../redux/slices/DeleteIncomeSlice";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -50,6 +51,7 @@ const niceMax = (v: number) => {
 
 const IncomeScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate=useNavigate();
 
   // Fetch data
   useEffect(() => {
@@ -65,7 +67,11 @@ const IncomeScreen: React.FC = () => {
   const categoryFrequencySelector = useSelector((s: RootState) => s.categoryIncome.income?.category_frequency) as
     | number[]
     | undefined;
-
+  const userSelector=useSelector((s:RootState)=>s.userInfo)
+  
+    useEffect(()=>{
+      if(!userSelector.userInfo) navigate("/login");
+    })
   const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
   const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
   const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];

@@ -14,6 +14,9 @@ import {
 } from "chart.js";
 import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 import { MdArrowOutward } from "react-icons/md";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(
   ArcElement,
@@ -59,12 +62,18 @@ const currency = (n: number) => inr.format(n);
 const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"];
 
 const DashboardScreen: React.FC = () => {
+  const navigate = useNavigate();
   const [totalBalance, setTotalBalance] = useState("");
   const [totalIncome, setTotalIncome] = useState("");
   const [totalExpenses, setTotalExpenses] = useState("");
   const [recentTxns, setRecentTxns] = useState<Txn[]>([]);
   const [incomeList, setIncomeList] = useState<Txn_Income[]>([]);
   const [expenseList, setExpenseList] = useState<Txn[]>([]);
+  const userSelector = useSelector((s: RootState) => s.userInfo);
+
+  useEffect(() => {
+    if (!userSelector.userInfo) navigate("/login");
+  }, [userSelector.userInfo, navigate]);
 
   useEffect(() => {
     const fetchTotal = async () => {
@@ -133,15 +142,18 @@ const DashboardScreen: React.FC = () => {
     [totalBalance, totalIncome, totalExpenses]
   );
 
+  // Line: use returned recentTxns (labels + signed values)
   const lineData: ChartData<"line"> = useMemo(() => {
     const labels = recentTxns.map((t) => t.date);
     const values = recentTxns.map((t) => Number(t.amount) || 0);
+    const safeLabels = labels.length ? labels : [new Date().toISOString().slice(0, 10)];
+    const safeValues = values.length ? values : [1];
     return {
-      labels,
+      labels: safeLabels,
       datasets: [
         {
           label: "Net Amount",
-          data: values,
+          data: safeValues,
           borderColor: "#7c3aed",
           backgroundColor: "rgba(124, 58, 237, 0.2)",
           fill: true,
@@ -162,14 +174,14 @@ const DashboardScreen: React.FC = () => {
       plugins: {
         legend: {
           display: true,
-          labels: { color: "#374151", font: { size: 14, weight: "bold" } },
+          labels: { color: "#374151", font: { size: 13, weight: "bold" } },
         },
         title: {
           display: true,
           text: "Transactions Over Time",
           color: "#111827",
-          font: { size: 18, weight: "bold" },
-          padding: { top: 10, bottom: 20 },
+          font: { size: 17, weight: "bold" },
+          padding: { top: 6, bottom: 12 },
         },
         tooltip: {
           callbacks: {
@@ -186,6 +198,7 @@ const DashboardScreen: React.FC = () => {
         x: {
           title: { display: true, text: "Date", color: "#374151" },
           grid: { color: "#e5e7eb" },
+          ticks: { color: "#6b7280" },
         },
         y: {
           title: { display: true, text: "Amount (INR)", color: "#374151" },
@@ -193,7 +206,7 @@ const DashboardScreen: React.FC = () => {
           grid: { color: "#e5e7eb" },
           ticks: {
             callback: (val) => currency(Number(val)),
-            color: "#374151",
+            color: "#6b7280",
           },
         },
       },
@@ -246,22 +259,22 @@ const DashboardScreen: React.FC = () => {
     <div className="page-wrap page-lg">
       {/* TOP: Left = Line, Right = Doughnut */}
       <section className="card card-elevated card-lg">
-        <div className="dash-grid responsive-grid-2">
+        <div className="grid-split">
           <div className="chart-left">
-            <div className="chartjs-box fluid-chart h-360 md:h-320 sm:h-260">
+            <div className="chartjs-box h-320">
               <Line data={lineData} options={lineOptions} />
             </div>
           </div>
           <div className="chart-right">
             <div className="doughnut-wrap">
-              <div className="doughnut-box fluid-chart h-360 md:h-320 sm:h-260 max-w-460">
+              <div className="doughnut-box h-320 max-w-460">
                 <Doughnut data={doughnutData} options={doughnutOptions} />
                 <div className="doughnut-center">
                   <div className="center-title">Total Balance</div>
                   <div className="center-value">{currency(Number(totalBalance) || 0)}</div>
                 </div>
               </div>
-              <ul className="legend wrap sm:stack">
+              <ul className="legend">
                 <li><span className="dot" style={{ background: "#7c3aed" }} /> Total Balance</li>
                 <li><span className="dot" style={{ background: "#fb923c" }} /> Total Income</li>
                 <li><span className="dot" style={{ background: "#ef4444" }} /> Total Expenses</li>
@@ -273,7 +286,7 @@ const DashboardScreen: React.FC = () => {
 
       {/* KPIs */}
       <section className="card card-elevated card-lg section-tight">
-        <div className="kpi-grid kpi-grid-balanced kpi-responsive">
+        <div className="kpi-grid kpi-grid-balanced">
           <div className="kpi-card">
             <div className="kpi-icon kpi-purple">💳</div>
             <div className="kpi-meta">
@@ -298,23 +311,23 @@ const DashboardScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* RECENT: Left 5 + Right 5 */}
+      {/* RECENT: equal halves + compact "See all" */}
       <section className="card card-elevated card-lg">
-        <div className="dash-grid responsive-grid-2">
-          {/* Left: 5 most recent */}
-          <div className="dash-left">
-            <div className="dash-head spaced">
+        <div className="grid-split">
+          {/* Left column */}
+          <div className="col">
+            <div className="list-head">
               <h3 className="card-title">Recent Transactions</h3>
-              <button className="btn btn-outline btn-pill btn-compact">
-                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              <button className="btn btn-outline btn-xs" >
+                See all <MdArrowOutward size={14} />
               </button>
             </div>
-            <ul className="dash-list dense sm:scroll-y">
-              {leftRecent.map((t, index) => {
+            <ul className="dash-list dense list-fixed">
+              {leftRecent.map((t, i) => {
                 const amt = Number(t.amount) || 0;
                 const isExpense = amt < 0;
                 return (
-                  <li key={index} className="dash-row hoverable row-tight">
+                  <li key={`l-${i}`} className="dash-row row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -334,20 +347,20 @@ const DashboardScreen: React.FC = () => {
             </ul>
           </div>
 
-          {/* Right: next 5 */}
-          <div className="dash-right">
-            <div className="dash-head spaced-right">
+          {/* Right column */}
+          <div className="col">
+            <div className="list-head">
               <h3 className="card-title">More Transactions</h3>
-              <button className="btn btn-outline btn-pill btn-compact">
-                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              <button className="btn btn-outline btn-xs">
+                See all <MdArrowOutward size={14} />
               </button>
             </div>
-            <ul className="dash-list dense sm:scroll-y">
-              {rightRecent.map((t, index) => {
+            <ul className="dash-list dense list-fixed">
+              {rightRecent.map((t, i) => {
                 const amt = Number(t.amount) || 0;
                 const isExpense = amt < 0;
                 return (
-                  <li key={index} className="dash-row hoverable row-tight">
+                  <li key={`r-${i}`} className="dash-row row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -369,23 +382,23 @@ const DashboardScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* Bottom: Incomes (left) and Expenses (right) */}
+      {/* Bottom: Incomes | Expenses equal halves */}
       <section className="card card-elevated card-lg">
-        <div className="two-col responsive-grid-2">
+        <div className="grid-split">
           {/* Incomes */}
-          <div className="card-block">
-            <div className="dash-head spaced">
+          <div className="col">
+            <div className="list-head">
               <h3 className="card-title">Incomes</h3>
-              <button className="btn btn-outline btn-pill btn-compact">
-                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              <button className="btn btn-outline btn-xs">
+                See all <MdArrowOutward size={14} />
               </button>
             </div>
-            <ul className="dash-list dense sm:scroll-y">
-              {incomeList.map((t, index) => {
+            <ul className="dash-list dense list-fixed">
+              {incomeList.map((t, i) => {
                 const amt = Number(t.amount) || 0;
                 const isPositive = amt >= 0;
                 return (
-                  <li key={index} className="dash-row hoverable row-tight">
+                  <li key={`inc-${i}`} className="dash-row row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>
@@ -406,18 +419,18 @@ const DashboardScreen: React.FC = () => {
           </div>
 
           {/* Expenses */}
-          <div className="card-block">
-            <div className="dash-head spaced">
+          <div className="col">
+            <div className="list-head">
               <h3 className="card-title">Expenses</h3>
-              <button className="btn btn-outline btn-pill btn-compact">
-                See All <MdArrowOutward style={{ marginLeft: 6 }} />
+              <button className="btn btn-outline btn-xs">
+                See all <MdArrowOutward size={14} />
               </button>
             </div>
-            <ul className="dash-list dense sm:scroll-y">
-              {expenseList.map((t, index) => {
+            <ul className="dash-list dense list-fixed">
+              {expenseList.map((t, i) => {
                 const amt = Number(t.amount) || 0;
                 return (
-                  <li key={index} className="dash-row hoverable row-tight">
+                  <li key={`exp-${i}`} className="dash-row row-tight">
                     <div className="dash-left-row">
                       <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{t.icon || "🧾"}</span>

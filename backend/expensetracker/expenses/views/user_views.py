@@ -133,3 +133,20 @@ def total_detail(request):
 # @api_view(['GET'])
 # @permission_classes([IsAuthenticated])
 # def recentTotal(request):
+#     total=0
+#     income=Income.objects.filter(user=request.user).order_by("-date")[:10]
+#     income_data=[]
+#     for i in income:
+#         income_data.append({
+#             "amount":i.amount,
+#             "date":i.date,
+#         })
+#     expense=Expense.objects.filter(user=request.user).order_by("-date")[:10]
+#     expense_data=[]
+#     for i in expense:
+#         expense_data.append({
+#             "amount":-1*i.amount,
+#             "date":i.date,
+#         })
+#     transactions=income_data+expense_data
+#     transactions.sort(key=lambda x:x["date"],reverse=True)

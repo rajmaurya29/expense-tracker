@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 // import "./index.css"; // uses the same classes as the login screen
 import { useNavigate } from "react-router-dom";
 import { useDispatch,useSelector } from "react-redux";
@@ -15,6 +15,11 @@ const SignUpScreen: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
     const dispatch=useDispatch<AppDispatch>();
+    const userSelector=useSelector((s:RootState)=>s.userInfo)
+    
+      useEffect(()=>{
+        if(userSelector.userInfo) navigate("/");
+      },[userSelector])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -37,7 +42,7 @@ const SignUpScreen: React.FC = () => {
                 const response= await axios.post("http://127.0.0.1:8000/users/register/",{"name":name,"email":email,"password":password},{withCredentials:true})
                 // console.log(response.data);
                 dispatch(loginUser({"email":email,"password":password}))
-               
+                
             }
             catch(error:any){
                 console.log(error.value)
@@ -47,7 +52,8 @@ const SignUpScreen: React.FC = () => {
       setError(err?.message || "Signup failed. Please try again.");
     } finally {
       setSubmitting(false);
-      navigate('/dashboard');
+      // navigate('/');
+      
     }
   };
 

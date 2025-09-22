@@ -18,6 +18,7 @@ import { MdDelete, MdClose } from "react-icons/md";
 import { createExpense } from "../redux/slices/CreateExpenseSlice";
 import { categoryExpense } from "../redux/slices/CategoryExpenseSlice";
 import { deleteExpense } from "../redux/slices/DeleteExpenseSlice";
+import { useNavigate } from "react-router-dom";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -49,6 +50,8 @@ const niceMax = (v: number) => {
 };
 
 const ExpenseScreen: React.FC = () => {
+    const navigate=useNavigate();
+
   const dispatch = useDispatch<AppDispatch>();
 
   // Fetch data
@@ -69,10 +72,13 @@ const ExpenseScreen: React.FC = () => {
   const rows: ExpenseRow[] = Array.isArray(expenseSelector) ? expenseSelector : [];
   const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
   const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
-
+  const userSelector=useSelector((s:RootState)=>s.userInfo)
+  
   // Category filter
   const [category, setCategory] = useState<string>("__ALL__");
-
+  useEffect(()=>{
+      if(!userSelector.userInfo) navigate("/login");
+    })
   // Modal state
   const [isModalOpen, setModalOpen] = useState(false);
   const [draft, setDraft] = useState<DraftExpense>({
