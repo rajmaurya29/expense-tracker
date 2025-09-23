@@ -11,10 +11,7 @@ type Txn = {
   icon?: string;
 };
 
-type FetchState = {
-  loading: boolean;
-  error: string | null;
-};
+type FetchState = { loading: boolean; error: string | null };
 
 const inr = new Intl.NumberFormat(undefined, {
   style: "currency",
@@ -29,27 +26,17 @@ function RecentTransactionComponent() {
   const [allTxns, setAllTxns] = useState<Txn[] | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  const [initialState, setInitialState] = useState<FetchState>({
-    loading: true,
-    error: null,
-  });
+  const [initialState, setInitialState] = useState<FetchState>({ loading: true, error: null });
+  const [allState, setAllState] = useState<FetchState>({ loading: false, error: null });
 
-  const [allState, setAllState] = useState<FetchState>({
-    loading: false,
-    error: null,
-  });
-
-  // Fetch only first 10 on mount
   useEffect(() => {
     let abort = false;
-
     const fetchInitial = async () => {
       setInitialState({ loading: true, error: null });
       try {
-        const res = await axios.get<Txn[]>(
-          "http://127.0.0.1:8000/users/transactions/?limit=10",
-          { withCredentials: true }
-        );
+        const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/?limit=10", {
+          withCredentials: true,
+        });
         if (abort) return;
         const list = Array.isArray(res.data) ? res.data : [];
         setInitialTxns(list.slice(0, 10));
@@ -63,23 +50,20 @@ function RecentTransactionComponent() {
         });
       }
     };
-
     fetchInitial();
     return () => {
       abort = true;
     };
   }, []);
 
-  // Toggle expand/collapse
   const handleToggle = async () => {
     if (!expanded) {
       if (!allTxns) {
         setAllState({ loading: true, error: null });
         try {
-          const res = await axios.get<Txn[]>(
-            "http://127.0.0.1:8000/users/transactions-total/",
-            { withCredentials: true }
-          );
+          const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions-total/", {
+            withCredentials: true,
+          });
           const list = Array.isArray(res.data) ? res.data : [];
           setAllTxns(list);
           setAllState({ loading: false, error: null });
@@ -102,26 +86,30 @@ function RecentTransactionComponent() {
   const showError =
     (!expanded && initialState.error) || (expanded && allState.error);
 
-  // choose what to render
   const displayedTxns = expanded ? allTxns ?? initialTxns : initialTxns;
 
-  // split into two halves dynamically
   const mid = Math.ceil(displayedTxns.length / 2);
   const leftRecent = useMemo(() => displayedTxns.slice(0, mid), [displayedTxns]);
-  const rightRecent = useMemo(
-    () => displayedTxns.slice(mid),
-    [displayedTxns]
-  );
+  const rightRecent = useMemo(() => displayedTxns.slice(mid), [displayedTxns]);
 
   return (
-    <section className="card card-elevated card-lg">
-      <div className="grid-split">
-        {/* Left column */}
-        <div className="col">
-          <div className="list-head">
-            <h3 className="card-title">Recent Transactions</h3>
-          </div>
+    <section className="card card-elevated card-lg recent-card">
+      {/* unified header row */}
+      <div className="recent-header">
+        <h3 className="card-title">Recent Transactions</h3>
+        <button
+          className="btn btn-outline btn-xs see-all-btn"
+          onClick={handleToggle}
+          disabled={showLoading}
+          aria-expanded={expanded}
+        >
+          {expanded ? "Close" : "See all"} <MdArrowOutward size={14} />
+        </button>
+      </div>
 
+      {/* content area with two columns that collapse on mobile */}
+      <div className="recent-grid">
+        <div className="col">
           {showLoading ? (
             <div className="dash-placeholder">Loading...</div>
           ) : showError ? (
@@ -153,21 +141,7 @@ function RecentTransactionComponent() {
           )}
         </div>
 
-        {/* Right column */}
         <div className="col">
-          <div className="list-head">
-            <h3 className="card-title"></h3>
-
-            <button
-              className="btn btn-outline btn-xs"
-              onClick={handleToggle}
-              disabled={showLoading}
-              aria-expanded={expanded}
-            >
-              {expanded ? "Close" : "See all"} <MdArrowOutward size={14} />
-            </button>
-          </div>
-
           {showLoading ? (
             <div className="dash-placeholder">Loading...</div>
           ) : showError ? (
