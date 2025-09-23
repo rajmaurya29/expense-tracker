@@ -130,23 +130,36 @@ def total_detail(request):
     total_value=income_value-expense_value
     return Response({"total amount":total_value,"total income":income_value,"total expense":expense_value})
 
-# @api_view(['GET'])
-# @permission_classes([IsAuthenticated])
-# def recentTotal(request):
-#     total=0
-#     income=Income.objects.filter(user=request.user).order_by("-date")[:10]
-#     income_data=[]
-#     for i in income:
-#         income_data.append({
-#             "amount":i.amount,
-#             "date":i.date,
-#         })
-#     expense=Expense.objects.filter(user=request.user).order_by("-date")[:10]
-#     expense_data=[]
-#     for i in expense:
-#         expense_data.append({
-#             "amount":-1*i.amount,
-#             "date":i.date,
-#         })
-#     transactions=income_data+expense_data
-#     transactions.sort(key=lambda x:x["date"],reverse=True)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recentTotal(request):
+    total=0
+    income=Income.objects.filter(user=request.user).order_by("-date")
+    income_data=[]
+    for i in income:
+        income_data.append({
+            "amount":i.amount,
+            "date":i.date,
+        })
+    expense=Expense.objects.filter(user=request.user).order_by("-date")
+    expense_data=[]
+    for i in expense:
+        expense_data.append({
+            "amount":-1*i.amount,
+            "date":i.date,
+        })
+    transactions=income_data+expense_data
+    transactions.sort(key=lambda x:x["date"])
+    final=[]
+    for i in transactions:
+        # print(float(i["amount"]))
+        total+=float(i["amount"])
+        final.append({
+            "amount":i["amount"],
+            "date":i["date"],
+            "total":total
+        })
+    final.reverse()
+    serializers=RecentTotalSerializer(final[:10],many=True)
+    return Response(serializers.data)
+    

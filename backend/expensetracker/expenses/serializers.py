@@ -39,3 +39,8 @@ class RecentTransactionsSerializer(serializers.Serializer):
     category=serializers.CharField()
     date=serializers.DateField()
     notes=serializers.CharField(max_length=500)
+
+class RecentTotalSerializer(serializers.Serializer):
+    amount=serializers.DecimalField(max_digits=20,decimal_places=2)
+    date=serializers.DateField()
+    total=serializers.IntegerField()
