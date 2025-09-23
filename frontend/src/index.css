@@ -573,8 +573,8 @@
 .badge-green { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
 /* Compact "See all" button */
 .btn-xs {
-  width: 90px;
-  height: 39px;
+  width: 68px;
+  height: 30px;
   padding: 6px 10px;         /* tighter padding */
   border-radius: 10px;
   font-size: 12px;           /* smaller text */

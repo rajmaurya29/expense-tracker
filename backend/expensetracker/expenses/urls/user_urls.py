@@ -8,4 +8,5 @@ urlpatterns = [
     path('transactions/',user_views.recentTransactions,name='recent_transactions'),
     path('total/',user_views.total_detail,name='totalDetail'),
     path('recent-total/',user_views.recentTotal,name='recent-total'),
+    path('transactions-total/',user_views.recentTransactionsTotal,name='recent-transactions-total'),
 ]

@@ -116,6 +116,35 @@ def recentTransactions(request):
     transactionsSerializer=RecentTransactionsSerializer(transactions[:10],many=True)
     return Response(transactionsSerializer.data)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def recentTransactionsTotal(request):
+    income=Income.objects.filter(user=request.user).order_by("-date")
+    income_data=[]
+    for i in income:
+        income_data.append({
+            "title":i.source,
+            "amount":i.amount,
+            "category":i.category,
+            "date":i.date,
+            "notes":i.notes
+        })
+    expense=Expense.objects.filter(user=request.user).order_by("-date")
+    expense_data=[]
+    for i in expense:
+        expense_data.append({
+            "title":i.title,
+            "amount":-1*i.amount,
+            "category":i.category,
+            "date":i.date,
+            "notes":i.notes
+        })
+    transactions=income_data+expense_data
+    transactions.sort(key=lambda x:x["date"],reverse=True)
+    transactionsSerializer=RecentTransactionsSerializer(transactions,many=True)
+    return Response(transactionsSerializer.data)
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def total_detail(request):
@@ -159,7 +188,7 @@ def recentTotal(request):
             "date":i["date"],
             "total":total
         })
-    final.reverse()
-    serializers=RecentTotalSerializer(final[:10],many=True)
+    # final.reverse()
+    serializers=RecentTotalSerializer(final[-10:],many=True)
     return Response(serializers.data)
     

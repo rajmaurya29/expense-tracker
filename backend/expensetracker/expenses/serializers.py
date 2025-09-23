@@ -43,4 +43,4 @@ class RecentTransactionsSerializer(serializers.Serializer):
 class RecentTotalSerializer(serializers.Serializer):
     amount=serializers.DecimalField(max_digits=20,decimal_places=2)
     date=serializers.DateField()
-    total=serializers.IntegerField()
+    total=serializers.DecimalField(max_digits=20,decimal_places=2)

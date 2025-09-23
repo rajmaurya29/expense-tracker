@@ -17,6 +17,7 @@ import { MdArrowOutward } from "react-icons/md";
 import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { useNavigate } from "react-router-dom";
+import RecentTransactionComponent from "./RecentTransactionComponent";
 
 ChartJS.register(
   ArcElement,
@@ -36,6 +37,12 @@ type Txn = {
   category: string;
   notes: string;
   icon?: string;
+};
+
+type Total = {
+  date: string;
+  amount: string;
+  total:string;
 };
 
 type Txn_Income = {
@@ -66,7 +73,8 @@ const DashboardScreen: React.FC = () => {
   const [totalBalance, setTotalBalance] = useState("");
   const [totalIncome, setTotalIncome] = useState("");
   const [totalExpenses, setTotalExpenses] = useState("");
-  const [recentTxns, setRecentTxns] = useState<Txn[]>([]);
+  // const [recentTxns, setRecentTxns] = useState<Txn[]>([]);
+  const [recentTotal, setRecentTotal] = useState<Total[]>([]);
   const [incomeList, setIncomeList] = useState<Txn_Income[]>([]);
   const [expenseList, setExpenseList] = useState<Txn[]>([]);
   const userSelector = useSelector((s: RootState) => s.userInfo);
@@ -91,18 +99,33 @@ const DashboardScreen: React.FC = () => {
     fetchTotal();
   }, []);
 
+  // useEffect(() => {
+  //   const fetchTransactions = async () => {
+  //     try {
+  //       const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/", {
+  //         withCredentials: true,
+  //       });
+  //       setRecentTxns(res.data ?? []);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  //   fetchTransactions();
+  // }, []);
+
+  
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchTotal= async () => {
       try {
-        const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/", {
+        const res = await axios.get<Total[]>("http://127.0.0.1:8000/users/recent-total/", {
           withCredentials: true,
         });
-        setRecentTxns(res.data ?? []);
+        setRecentTotal(res.data ?? []);
       } catch (error) {
         console.log(error);
       }
     };
-    fetchTransactions();
+    fetchTotal();
   }, []);
 
   useEffect(() => {
@@ -144,8 +167,9 @@ const DashboardScreen: React.FC = () => {
 
   // Line: use returned recentTxns (labels + signed values)
   const lineData: ChartData<"line"> = useMemo(() => {
-    const labels = recentTxns.map((t) => t.date);
-    const values = recentTxns.map((t) => Number(t.amount) || 0);
+    
+    const labels = recentTotal.map((t) => t.date);
+    const values = recentTotal.map((t) => Number(t.total) || 0);
     const safeLabels = labels.length ? labels : [new Date().toISOString().slice(0, 10)];
     const safeValues = values.length ? values : [1];
     return {
@@ -165,7 +189,7 @@ const DashboardScreen: React.FC = () => {
         },
       ],
     };
-  }, [recentTxns]);
+  }, [recentTotal]);
 
   const lineOptions: ChartOptions<"line"> = useMemo(
     () => ({
@@ -252,8 +276,8 @@ const DashboardScreen: React.FC = () => {
     []
   );
 
-  const leftRecent = recentTxns.slice(0, 5);
-  const rightRecent = recentTxns.slice(5, 10);
+  // const leftRecent = recentTxns.slice(0, 5);
+  // const rightRecent = recentTxns.slice(5, 10);
 
   return (
     <div className="page-wrap page-lg">
@@ -311,77 +335,7 @@ const DashboardScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* RECENT: equal halves + compact "See all" */}
-      <section className="card card-elevated card-lg">
-        <div className="grid-split">
-          {/* Left column */}
-          <div className="col">
-            <div className="list-head">
-              <h3 className="card-title">Recent Transactions</h3>
-              <button className="btn btn-outline btn-xs" >
-                See all <MdArrowOutward size={14} />
-              </button>
-            </div>
-            <ul className="dash-list dense list-fixed">
-              {leftRecent.map((t, i) => {
-                const amt = Number(t.amount) || 0;
-                const isExpense = amt < 0;
-                return (
-                  <li key={`l-${i}`} className="dash-row row-tight">
-                    <div className="dash-left-row">
-                      <div className="dash-avatar" aria-hidden>
-                        <span className="dash-emoji">{t.icon || "🧾"}</span>
-                      </div>
-                      <div>
-                        <div className="dash-title">{t.title}</div>
-                        <div className="dash-sub">{t.date}</div>
-                      </div>
-                    </div>
-                    <div className={`dash-amt ${isExpense ? "down" : "up"}`}>
-                      {isExpense ? "− " : "+ "}
-                      {currency(Math.abs(amt))}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-
-          {/* Right column */}
-          <div className="col">
-            <div className="list-head">
-              <h3 className="card-title">More Transactions</h3>
-              <button className="btn btn-outline btn-xs">
-                See all <MdArrowOutward size={14} />
-              </button>
-            </div>
-            <ul className="dash-list dense list-fixed">
-              {rightRecent.map((t, i) => {
-                const amt = Number(t.amount) || 0;
-                const isExpense = amt < 0;
-                return (
-                  <li key={`r-${i}`} className="dash-row row-tight">
-                    <div className="dash-left-row">
-                      <div className="dash-avatar" aria-hidden>
-                        <span className="dash-emoji">{t.icon || "🧾"}</span>
-                      </div>
-                      <div>
-                        <div className="dash-title">{t.title}</div>
-                        <div className="dash-sub">{t.date}</div>
-                      </div>
-                    </div>
-                    <div className={`dash-amt ${isExpense ? "down" : "up"}`}>
-                      {isExpense ? "− " : "+ "}
-                      {currency(Math.abs(amt))}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </div>
-      </section>
-
+     <RecentTransactionComponent/>
       {/* Bottom: Incomes | Expenses equal halves */}
       <section className="card card-elevated card-lg">
         <div className="grid-split">
@@ -389,7 +343,7 @@ const DashboardScreen: React.FC = () => {
           <div className="col">
             <div className="list-head">
               <h3 className="card-title">Incomes</h3>
-              <button className="btn btn-outline btn-xs">
+              <button className="btn btn-outline btn-xs" onClick={()=>navigate("/")}>
                 See all <MdArrowOutward size={14} />
               </button>
             </div>
