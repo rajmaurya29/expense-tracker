@@ -9,4 +9,5 @@ urlpatterns = [
     path('total/',user_views.total_detail,name='totalDetail'),
     path('recent-total/',user_views.recentTotal,name='recent-total'),
     path('transactions-total/',user_views.recentTransactionsTotal,name='recent-transactions-total'),
+    path('transactions/csv/',user_views.export_csv,name='export-csv'),
 ]
