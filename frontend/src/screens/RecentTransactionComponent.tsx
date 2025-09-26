@@ -97,6 +97,14 @@ function RecentTransactionComponent() {
       {/* unified header row */}
       <div className="recent-header">
         <h3 className="card-title">Recent Transactions</h3>
+        <div>
+          <a
+          href="http://127.0.0.1:8000/users/transactions/csv/"
+          download
+          className="btn btn-outline btn-xs-download see-all-btn"
+        >
+          Download CSV
+        </a>
         <button
           className="btn btn-outline btn-xs see-all-btn"
           onClick={handleToggle}
@@ -105,6 +113,7 @@ function RecentTransactionComponent() {
         >
           {expanded ? "Close" : "See all"} <MdArrowOutward size={14} />
         </button>
+        </div>
       </div>
 
       {/* content area with two columns that collapse on mobile */}

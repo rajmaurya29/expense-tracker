@@ -19,6 +19,7 @@ import { createIncome } from "../redux/slices/CreateIncomeSlice";
 import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
 import { deleteIncome } from "../redux/slices/DeleteIncomeSlice";
 import { useNavigate } from "react-router-dom";
+import PiechartIncome from "../components/PiechartIncome";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -38,9 +39,12 @@ type DraftIncome = {
   notes: string;
   date: string; // yyyy-mm-dd
 };
-
-const currency = (n: number) =>
-  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+const inr = new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+const currency = (n: number) => inr.format(n);
 
 const niceMax = (v: number) => {
   if (!isFinite(v) || v <= 0) return 1;
@@ -248,6 +252,7 @@ const IncomeScreen: React.FC = () => {
   return (
     <div className="page-wrap page-lg">
       {/* Overview */}
+       {/* <PiechartIncome/> */}
       <section className="card card-elevated card-lg">
         <header className="card-head card-head-split">
           <div>
@@ -283,9 +288,7 @@ const IncomeScreen: React.FC = () => {
                     <li key={`${lbl}-${i}`} className="pie-legend-item">
                       <span className="dot" style={{ background: incomeColors[i % incomeColors.length] }} />
                       <span className="name">{lbl}</span>
-                      <span className="val">
-                        {currency(Number(val) || 0)} · {pct}%
-                      </span>
+                      
                     </li>
                   );
                 })}
@@ -313,7 +316,7 @@ const IncomeScreen: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button className="btn btn-outline btn-lg">Download</button>
+            <button className="btn btn-outline btn-xs-download see-all-btn">Download</button>
           </div>
         </header>
 
@@ -323,7 +326,9 @@ const IncomeScreen: React.FC = () => {
             {leftHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
-                  <div className="avatar-dot avatar-dot-lg" aria-hidden />
+                  <div className="dash-avatar" aria-hidden>
+                        <span className="dash-emoji">{ "🧾"}</span>
+                      </div>
                   <div>
                     <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
@@ -346,7 +351,9 @@ const IncomeScreen: React.FC = () => {
             {rightHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
-                  <div className="avatar-dot avatar-dot-lg" aria-hidden />
+                  <div className="dash-avatar" aria-hidden>
+                        <span className="dash-emoji">{ "🧾"}</span>
+                      </div>
                   <div>
                     <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>

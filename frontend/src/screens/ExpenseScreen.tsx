@@ -39,9 +39,12 @@ type DraftExpense = {
   date: string; // yyyy-mm-dd
 };
 
-const currency = (n: number) =>
-  n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 });
-
+const inr = new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0,
+});
+const currency = (n: number) => inr.format(n);
 const niceMax = (v: number) => {
   if (!isFinite(v) || v <= 0) return 1;
   const magnitude = Math.pow(10, Math.floor(Math.log10(v)));
@@ -309,7 +312,7 @@ const ExpenseScreen: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button className="btn btn-outline btn-lg">Download</button>
+            <button className="btn btn-outline btn-xs-download see-all-btn">Download</button>
           </div>
         </header>
 
@@ -319,7 +322,9 @@ const ExpenseScreen: React.FC = () => {
             {leftHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
-                  <div className="avatar-dot avatar-dot-lg" aria-hidden />
+                  <div className="dash-avatar" aria-hidden>
+                        <span className="dash-emoji">{  "🧾"}</span>
+                      </div>
                   <div>
                     <div className="list-title list-title-lg">{item.title ?? item.categoryName ?? "Expense"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
@@ -347,7 +352,9 @@ const ExpenseScreen: React.FC = () => {
             {rightHalf.map((item) => (
               <li key={item.id} className="list-row list-row-lg hoverable">
                 <div className="list-left">
-                  <div className="avatar-dot avatar-dot-lg" aria-hidden />
+                  <div className="dash-avatar" aria-hidden>
+                        <span className="dash-emoji">{ "🧾"}</span>
+                      </div>
                   <div>
                     <div className="list-title list-title-lg">{item.title ?? item.categoryName ?? "Expense"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>

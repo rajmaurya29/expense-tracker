@@ -224,4 +224,4 @@ def export_csv(request):
     transactions.sort(key=lambda x:x["date"],reverse=True)
     for i in transactions:
         writer.writerow([i['title'],i['amount'],i['category'],i['date'],i['notes']])
-    return Response
+    return response

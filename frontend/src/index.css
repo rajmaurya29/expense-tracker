@@ -583,6 +583,18 @@
   align-items: center;
   gap: 4px;                  /* space for icon */
 }
+.btn-xs-download {
+  width: 125px;
+  height: 30px;
+  /* padding: 6px 10px;         tighter padding */
+  border-radius: 10px;
+  font-size: 12px;           /* smaller text */
+  line-height: 1;
+  margin-right:4px;
+  /* display: inline-flex; */
+  /* align-items: center; */
+  gap: 4px;                  /* space for icon */
+}
 .btn-xs svg { width: 1px; height: 14px; }  /* smaller arrow */
 /* container */
 .recent-card {

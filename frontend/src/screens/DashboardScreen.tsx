@@ -18,6 +18,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { useNavigate } from "react-router-dom";
 import RecentTransactionComponent from "./RecentTransactionComponent";
+import PiechartIncome from "../components/PiechartIncome";
+// import DownloadCSV from "../components/DownloadCSV";
 
 ChartJS.register(
   ArcElement,
@@ -281,6 +283,7 @@ const DashboardScreen: React.FC = () => {
 
   return (
     <div className="page-wrap page-lg">
+     
       {/* TOP: Left = Line, Right = Doughnut */}
       <section className="card card-elevated card-lg">
         <div className="grid-split">
@@ -343,6 +346,8 @@ const DashboardScreen: React.FC = () => {
           <div className="col">
             <div className="list-head">
               <h3 className="card-title">Incomes</h3>
+              {/* <DownloadCSV/> */}
+              
               <button className="btn btn-outline btn-xs" onClick={()=>navigate("/")}>
                 See all <MdArrowOutward size={14} />
               </button>
@@ -362,7 +367,7 @@ const DashboardScreen: React.FC = () => {
                         <div className="dash-sub">{t.date}</div>
                       </div>
                     </div>
-                    <div className={`badge ${isPositive ? "badge-green" : "badge-red"}`}>
+                    <div className={`dash-amt ${!isPositive ? "down" : "up"}`}>
                       {isPositive ? "+ " : "− "}
                       {currency(Math.abs(amt))}
                     </div>
@@ -394,7 +399,7 @@ const DashboardScreen: React.FC = () => {
                         <div className="dash-sub">{t.date}</div>
                       </div>
                     </div>
-                    <div className="badge badge-red">− {currency(Math.abs(amt))}</div>
+                    <div className={`dash-amt ${"down"}`}>− {currency(Math.abs(amt))}</div>
                   </li>
                 );
               })}
