@@ -202,11 +202,13 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # frontend in dev
     "https://expense-tracker-f87l.onrender.com",
+    "https://expense-tracker-sigma-nine-67.vercel.app/"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://expense-tracker-f87l.onrender.com",  # replace with your real Render backend URL
     "http://localhost:5173",
+    
 ]
 
 # SESSION_COOKIE_SAMESITE = "None"
