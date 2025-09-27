@@ -201,6 +201,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # frontend in dev
+    "https://expense-tracker-f87l.onrender.com",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
