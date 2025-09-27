@@ -178,7 +178,7 @@ const DashboardScreen: React.FC = () => {
       labels: safeLabels,
       datasets: [
         {
-          label: "Net Amount",
+          label: "Total Amount",
           data: safeValues,
           borderColor: "#7c3aed",
           backgroundColor: "rgba(124, 58, 237, 0.2)",
@@ -204,7 +204,7 @@ const DashboardScreen: React.FC = () => {
         },
         title: {
           display: true,
-          text: "Transactions Over Time",
+          text: "Last 10 total over Time",
           color: "#111827",
           font: { size: 17, weight: "bold" },
           padding: { top: 6, bottom: 12 },
@@ -297,8 +297,8 @@ const DashboardScreen: React.FC = () => {
               <div className="doughnut-box h-320 max-w-460">
                 <Doughnut data={doughnutData} options={doughnutOptions} />
                 <div className="doughnut-center">
-                  <div className="center-title">Total Balance</div>
-                  <div className="center-value">{currency(Number(totalBalance) || 0)}</div>
+                  <div className="center-title-pie">Total Balance- {currency(Number(totalBalance) || 0)}</div>
+                  {/* <div className="center-value-pie">{currency(Number(totalBalance) || 0)}</div> */}
                 </div>
               </div>
               <ul className="legend">
