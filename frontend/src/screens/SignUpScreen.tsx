@@ -40,7 +40,7 @@ const SignUpScreen: React.FC = () => {
       // Demo-only: simulate async signup
       await new Promise((r) => setTimeout(r, 800));
       try{  
-                const response= await axios.post(`${API_URL}/users/register/`,{"name":name,"email":email,"password":password},{withCredentials:true})
+               await axios.post(`${API_URL}/users/register/`,{"name":name,"email":email,"password":password},{withCredentials:true})
                 // console.log(response.data);
                 dispatch(loginUser({"email":email,"password":password}))
                 

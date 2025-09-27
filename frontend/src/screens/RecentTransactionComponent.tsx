@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import  { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { MdArrowOutward } from "react-icons/md";
 const API_URL = import.meta.env.VITE_API_URL as string;

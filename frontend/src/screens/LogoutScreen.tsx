@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { logoutUser } from "../redux/slices/UserSlice";
-import { Navigate, useNavigate } from "react-router-dom";
-const API_URL = import.meta.env.VITE_API_URL as string;
+import {  useNavigate } from "react-router-dom";
+// const API_URL = import.meta.env.VITE_API_URL as string;
 
 const LogoutScreen: React.FC = () => {
   

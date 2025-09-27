@@ -19,7 +19,6 @@ import { createIncome } from "../redux/slices/CreateIncomeSlice";
 import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
 import { deleteIncome } from "../redux/slices/DeleteIncomeSlice";
 import { useNavigate } from "react-router-dom";
-import PiechartIncome from "../components/PiechartIncome";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
@@ -200,7 +199,7 @@ const IncomeScreen: React.FC = () => {
       },
     },
   };
-  const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
+  // const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
   // Modal handlers
   const openModal = () => setModalOpen(true);
@@ -283,8 +282,8 @@ const IncomeScreen: React.FC = () => {
               </div>
               <ul className="pie-legend">
                 {catNames.map((lbl, i) => {
-                  const val = catFreqs[i] ?? 0;
-                  const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
+                  // const val = catFreqs[i] ?? 0;
+                  // const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
                   return (
                     <li key={`${lbl}-${i}`} className="pie-legend-item">
                       <span className="dot" style={{ background: incomeColors[i % incomeColors.length] }} />

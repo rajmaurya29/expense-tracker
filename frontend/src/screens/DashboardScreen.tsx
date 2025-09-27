@@ -18,7 +18,6 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../redux/store";
 import { useNavigate } from "react-router-dom";
 import RecentTransactionComponent from "./RecentTransactionComponent";
-import PiechartIncome from "../components/PiechartIncome";
 // import DownloadCSV from "../components/DownloadCSV";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
