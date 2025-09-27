@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import RecentTransactionComponent from "./RecentTransactionComponent";
 import PiechartIncome from "../components/PiechartIncome";
 // import DownloadCSV from "../components/DownloadCSV";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 ChartJS.register(
   ArcElement,
@@ -88,7 +89,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(() => {
     const fetchTotal = async () => {
       try {
-        const res = await axios.get<TTxn>("http://127.0.0.1:8000/users/total/", {
+        const res = await axios.get<TTxn>(`${API_URL}/users/total/`, {
           withCredentials: true,
         });
         setTotalBalance(String(res.data["total amount"] ?? 0));
@@ -119,7 +120,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(() => {
     const fetchTotal= async () => {
       try {
-        const res = await axios.get<Total[]>("http://127.0.0.1:8000/users/recent-total/", {
+        const res = await axios.get<Total[]>(`${API_URL}/users/recent-total/`, {
           withCredentials: true,
         });
         setRecentTotal(res.data ?? []);
@@ -133,7 +134,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(() => {
     const fetchIncome = async () => {
       try {
-        const res = await axios.get<Txn_Income[]>("http://127.0.0.1:8000/income/transactions/", {
+        const res = await axios.get<Txn_Income[]>(`${API_URL}/income/transactions/`, {
           withCredentials: true,
         });
         setIncomeList(res.data ?? []);
@@ -147,7 +148,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(() => {
     const fetchExpense = async () => {
       try {
-        const res = await axios.get<Txn[]>("http://127.0.0.1:8000/expense/transactions/", {
+        const res = await axios.get<Txn[]>(`${API_URL}/expense/transactions/`, {
           withCredentials: true,
         });
         setExpenseList(res.data ?? []);

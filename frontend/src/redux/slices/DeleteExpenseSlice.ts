@@ -1,11 +1,12 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 
 export const deleteExpense=createAsyncThunk(
     "deleteExpense",async (id:number,thunkAPI)=>{
         try{
-            const response= await axios.delete(`http://127.0.0.1:8000/expense/delete/${id}`,
+            const response= await axios.delete(`${API_URL}/expense/delete/${id}`,
                { withCredentials:true}
             )
             return response.data;

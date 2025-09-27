@@ -5,6 +5,7 @@ import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { loginUser } from "../redux/slices/UserSlice";
 import axios from "axios";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 const SignUpScreen: React.FC = () => {
   const navigate=useNavigate();
@@ -39,7 +40,7 @@ const SignUpScreen: React.FC = () => {
       // Demo-only: simulate async signup
       await new Promise((r) => setTimeout(r, 800));
       try{  
-                const response= await axios.post("http://127.0.0.1:8000/users/register/",{"name":name,"email":email,"password":password},{withCredentials:true})
+                const response= await axios.post(`${API_URL}/users/register/`,{"name":name,"email":email,"password":password},{withCredentials:true})
                 // console.log(response.data);
                 dispatch(loginUser({"email":email,"password":password}))
                 

@@ -4,6 +4,7 @@ import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { loginUser } from "../redux/slices/UserSlice";
 // import "./index.css"; // make sure this file is imported once (here or in your app root)
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 const LoginScreen: React.FC = () => {
   const navigate=useNavigate();

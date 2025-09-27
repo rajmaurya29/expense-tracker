@@ -20,6 +20,7 @@ import { categoryIncome } from "../redux/slices/CategoryIncomeSlice";
 import { deleteIncome } from "../redux/slices/DeleteIncomeSlice";
 import { useNavigate } from "react-router-dom";
 import PiechartIncome from "../components/PiechartIncome";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -318,7 +319,7 @@ const IncomeScreen: React.FC = () => {
             </select>
             <button className="btn btn-outline btn-xs-download see-all-btn">
               <a
-          href="http://127.0.0.1:8000/income/transactions/csv/"
+          href={`${API_URL}/income/transactions/csv/`}
           download
           className="btn btn-outline btn-xs-download see-all-btn"
         >

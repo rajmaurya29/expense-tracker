@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { MdArrowOutward } from "react-icons/md";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 type Txn = {
   title: string;
@@ -34,7 +35,7 @@ function RecentTransactionComponent() {
     const fetchInitial = async () => {
       setInitialState({ loading: true, error: null });
       try {
-        const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/?limit=10", {
+        const res = await axios.get<Txn[]>(`${API_URL}/users/transactions/?limit=10`, {
           withCredentials: true,
         });
         if (abort) return;
@@ -61,7 +62,7 @@ function RecentTransactionComponent() {
       if (!allTxns) {
         setAllState({ loading: true, error: null });
         try {
-          const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions-total/", {
+          const res = await axios.get<Txn[]>(`${API_URL}/users/transactions-total/`, {
             withCredentials: true,
           });
           const list = Array.isArray(res.data) ? res.data : [];
@@ -99,7 +100,7 @@ function RecentTransactionComponent() {
         <h3 className="card-title">Recent Transactions</h3>
         <div>
           <a
-          href="http://127.0.0.1:8000/users/transactions/csv/"
+          href={`${API_URL}/users/transactions/csv/`}
           download
           className="btn btn-outline btn-xs-download see-all-btn"
         >

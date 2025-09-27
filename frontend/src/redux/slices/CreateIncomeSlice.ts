@@ -1,11 +1,12 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 
 export const createIncome=createAsyncThunk(
     "createIncome",async ({source,amount,categoryName,notes,date}:{source:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
         try{
-            const response= await axios.post("http://127.0.0.1:8000/income/create/",{source,amount,category:categoryName,notes,date},
+            const response= await axios.post(`${API_URL}/income/create/`,{source,amount,category:categoryName,notes,date},
                { withCredentials:true}
             )
             return response.data;

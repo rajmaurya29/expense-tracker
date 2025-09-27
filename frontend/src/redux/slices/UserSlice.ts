@@ -1,5 +1,6 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 const loginInfoFromStorage=localStorage.getItem("userInfo")?
 JSON.parse(localStorage.getItem("userInfo")!):null;
@@ -8,7 +9,7 @@ JSON.parse(localStorage.getItem("userInfo")!):null;
 export const loginUser=createAsyncThunk(
     "loginUser",async ({email,password}:{email:string,password:string},thunkAPI)=>{
         try{
-            const response= await axios.post("http://127.0.0.1:8000/users/login/",{"username":email,"password":password},
+            const response= await axios.post(`${API_URL}/users/login/`,{"username":email,"password":password},
                { withCredentials:true}
             )
             return response.data;
@@ -22,7 +23,7 @@ export const loginUser=createAsyncThunk(
 export const logoutUser=createAsyncThunk(
     "logoutUser",async (_,thunkAPI)=>{
         try{
-            const response= await axios.post("http://127.0.0.1:8000/users/logout/",{},
+            const response= await axios.post(`${API_URL}/users/logout/`,{},
                { withCredentials:true}
             )
             return response.data;

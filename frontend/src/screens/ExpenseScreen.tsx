@@ -19,6 +19,7 @@ import { createExpense } from "../redux/slices/CreateExpenseSlice";
 import { categoryExpense } from "../redux/slices/CategoryExpenseSlice";
 import { deleteExpense } from "../redux/slices/DeleteExpenseSlice";
 import { useNavigate } from "react-router-dom";
+const API_URL = import.meta.env.VITE_API_URL as string;
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Legend, Title);
 
@@ -314,7 +315,7 @@ const ExpenseScreen: React.FC = () => {
             </select>
             <button className="btn btn-outline btn-xs-download see-all-btn">
               <a
-          href="http://127.0.0.1:8000/expense/transactions/csv/"
+          href={`${API_URL}/expense/transactions/csv/`}
           download
           className="btn btn-outline btn-xs-download see-all-btn"
         >
