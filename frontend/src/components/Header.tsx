@@ -9,7 +9,7 @@ export interface HeaderProps {
   headerHeight?: number;
 }
 
-const Header: React.FC<HeaderProps> = ({  headerHeight = 190 }) => {
+const Header: React.FC<HeaderProps> = () => {
     const dispatch=useDispatch<AppDispatch>();
   return (
     <header
