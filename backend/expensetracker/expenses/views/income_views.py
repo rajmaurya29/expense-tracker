@@ -9,6 +9,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from expenses.serializers import UserSerializer,IncomeSerializer,ExpenseSerializer,CategorySerializer
 from rest_framework.status import *
 from expenses.models import *
+from django.http import HttpResponse
+import csv 
 
 @api_view(['post'])
 @permission_classes([IsAuthenticated])
@@ -113,3 +115,27 @@ def recentTransactionsIncome(request):
     income=Income.objects.filter(user=request.user).order_by("-date")[:5]
     serializer=IncomeSerializer(income,many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def export_csv(request):
+    response=HttpResponse(content_type='text/csv')
+    response['content-Disposition']='attachment; filename="transactions-income.csv"'
+    writer=csv.writer(response)
+    writer.writerow(['title','amount','category','date','notes'])
+    income=Income.objects.filter(user=request.user).order_by("-date")
+    income_data=[]
+    for i in income:
+        income_data.append({
+            "title":i.source,
+            "amount":i.amount,
+            "category":i.category,
+            "date":i.date,
+            "notes":i.notes
+        })
+    transactions=income_data
+    transactions.sort(key=lambda x:x["date"],reverse=True)
+    for i in transactions:
+        writer.writerow([i['title'],i['amount'],i['category'],i['date'],i['notes']])
+    return response

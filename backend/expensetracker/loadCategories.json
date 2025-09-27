@@ -1,0 +1,8 @@
+[
+  { "model": "expenses.category", "pk": 1, "fields": { "name": "Food" }},
+  { "model": "expenses.category", "pk": 2, "fields": { "name": "Travel" }},
+  { "model": "expenses.category", "pk": 3, "fields": { "name": "Entertainment" }},
+  { "model": "expenses.category", "pk": 4, "fields": { "name": "Health" }},
+  { "model": "expenses.category", "pk": 5, "fields": { "name": "Bills" }},
+  { "model": "expenses.category", "pk": 6, "fields": { "name": "Shopping" }}
+]

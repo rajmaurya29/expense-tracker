@@ -8,7 +8,7 @@ export const income=createAsyncThunk(
             const response= await axios.get("http://127.0.0.1:8000/income/get/",
                { "withCredentials":true}
             )
-            console.log(response.data)
+            // console.log(response.data)
             return response.data;
         }
         catch(error:any){

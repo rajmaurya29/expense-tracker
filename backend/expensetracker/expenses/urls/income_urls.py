@@ -8,5 +8,5 @@ urlpatterns = [
     path('delete/<int:id>',income_views.delete_income,name='delete_income'),
     path('categoryIncome/',income_views.income_category,name='income_category'),
     path('transactions/',income_views.recentTransactionsIncome,name='recentTransactions'),
-    
+    path('transactions/csv/',income_views.export_csv,name='export-csv'),
 ]

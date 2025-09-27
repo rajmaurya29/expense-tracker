@@ -1,0 +1,22 @@
+[
+  { "model": "expenses.expense", "pk": 1, "fields": { "user": 1, "title": "Groceries", "amount": "120.50", "category": 1, "date": "2025-09-01", "notes": "Weekly groceries" }},
+  { "model": "expenses.expense", "pk": 2, "fields": { "user": 1, "title": "Bus Ticket", "amount": "15.00", "category": 2, "date": "2025-09-02", "notes": "Office commute" }},
+  { "model": "expenses.expense", "pk": 3, "fields": { "user": 1, "title": "Movie Night", "amount": "30.00", "category": 3, "date": "2025-09-03", "notes": "Cinema with friends" }},
+  { "model": "expenses.expense", "pk": 4, "fields": { "user": 1, "title": "Pharmacy", "amount": "25.00", "category": 4, "date": "2025-09-04", "notes": "Medicine purchase" }},
+  { "model": "expenses.expense", "pk": 5, "fields": { "user": 1, "title": "Electricity Bill", "amount": "80.00", "category": 5, "date": "2025-09-05", "notes": "Monthly electricity" }},
+  { "model": "expenses.expense", "pk": 6, "fields": { "user": 1, "title": "New Shoes", "amount": "150.00", "category": 6, "date": "2025-09-06", "notes": "Sneakers shopping" }},
+  { "model": "expenses.expense", "pk": 7, "fields": { "user": 1, "title": "Dinner", "amount": "60.00", "category": 1, "date": "2025-09-07", "notes": "Family dinner" }},
+  { "model": "expenses.expense", "pk": 8, "fields": { "user": 1, "title": "Taxi Ride", "amount": "25.00", "category": 2, "date": "2025-09-08", "notes": "To airport" }},
+  { "model": "expenses.expense", "pk": 9, "fields": { "user": 1, "title": "Concert Ticket", "amount": "100.00", "category": 3, "date": "2025-09-09", "notes": "Music event" }},
+  { "model": "expenses.expense", "pk": 10, "fields": { "user": 1, "title": "Doctor Visit", "amount": "50.00", "category": 4, "date": "2025-09-10", "notes": "Consultation fee" }},
+  { "model": "expenses.expense", "pk": 11, "fields": { "user": 1, "title": "Water Bill", "amount": "20.00", "category": 5, "date": "2025-09-11", "notes": "Monthly water" }},
+  { "model": "expenses.expense", "pk": 12, "fields": { "user": 1, "title": "T-shirt", "amount": "40.00", "category": 6, "date": "2025-09-12", "notes": "Clothes shopping" }},
+  { "model": "expenses.expense", "pk": 13, "fields": { "user": 1, "title": "Snacks", "amount": "10.00", "category": 1, "date": "2025-09-13", "notes": "Evening snacks" }},
+  { "model": "expenses.expense", "pk": 14, "fields": { "user": 1, "title": "Train Ticket", "amount": "35.00", "category": 2, "date": "2025-09-14", "notes": "Weekend trip" }},
+  { "model": "expenses.expense", "pk": 15, "fields": { "user": 1, "title": "Netflix", "amount": "15.00", "category": 3, "date": "2025-09-15", "notes": "Monthly subscription" }},
+  { "model": "expenses.expense", "pk": 16, "fields": { "user": 1, "title": "Medicine", "amount": "30.00", "category": 4, "date": "2025-09-16", "notes": "Pharmacy" }},
+  { "model": "expenses.expense", "pk": 17, "fields": { "user": 1, "title": "Internet Bill", "amount": "50.00", "category": 5, "date": "2025-09-17", "notes": "WiFi payment" }},
+  { "model": "expenses.expense", "pk": 18, "fields": { "user": 1, "title": "Watch", "amount": "200.00", "category": 6, "date": "2025-09-18", "notes": "Gift for self" }},
+  { "model": "expenses.expense", "pk": 19, "fields": { "user": 1, "title": "Lunch", "amount": "25.00", "category": 1, "date": "2025-09-19", "notes": "Office lunch" }},
+  { "model": "expenses.expense", "pk": 20, "fields": { "user": 1, "title": "Flight Ticket", "amount": "300.00", "category": 2, "date": "2025-09-20", "notes": "Business trip" }}
+]

@@ -1,0 +1,22 @@
+[
+  { "model": "expenses.income", "pk": 1, "fields": { "user": 1, "source": "Salary", "category": 6, "amount": "5000.00", "date": "2025-09-01", "notes": "Monthly salary" }},
+  { "model": "expenses.income", "pk": 2, "fields": { "user": 1, "source": "Freelance", "category": 6, "amount": "800.00", "date": "2025-09-02", "notes": "Website project" }},
+  { "model": "expenses.income", "pk": 3, "fields": { "user": 1, "source": "Stock Dividend", "category": 6, "amount": "200.00", "date": "2025-09-03", "notes": "Quarterly payout" }},
+  { "model": "expenses.income", "pk": 4, "fields": { "user": 1, "source": "Gift", "category": 6, "amount": "100.00", "date": "2025-09-04", "notes": "Birthday gift" }},
+  { "model": "expenses.income", "pk": 5, "fields": { "user": 1, "source": "Bonus", "category": 6, "amount": "600.00", "date": "2025-09-05", "notes": "Performance bonus" }},
+  { "model": "expenses.income", "pk": 6, "fields": { "user": 1, "source": "Part-time Job", "category": 6, "amount": "300.00", "date": "2025-09-06", "notes": "Weekend work" }},
+  { "model": "expenses.income", "pk": 7, "fields": { "user": 1, "source": "Consulting", "category": 6, "amount": "400.00", "date": "2025-09-07", "notes": "IT consulting" }},
+  { "model": "expenses.income", "pk": 8, "fields": { "user": 1, "source": "Tutoring", "category": 6, "amount": "250.00", "date": "2025-09-08", "notes": "Math tutoring" }},
+  { "model": "expenses.income", "pk": 9, "fields": { "user": 1, "source": "YouTube", "category": 6, "amount": "150.00", "date": "2025-09-09", "notes": "Ad revenue" }},
+  { "model": "expenses.income", "pk": 10, "fields": { "user": 1, "source": "E-book Sales", "category": 6, "amount": "120.00", "date": "2025-09-10", "notes": "Digital product" }},
+  { "model": "expenses.income", "pk": 11, "fields": { "user": 1, "source": "Rental Income", "category": 6, "amount": "700.00", "date": "2025-09-11", "notes": "Flat rent" }},
+  { "model": "expenses.income", "pk": 12, "fields": { "user": 1, "source": "Interest", "category": 6, "amount": "90.00", "date": "2025-09-12", "notes": "Bank savings" }},
+  { "model": "expenses.income", "pk": 13, "fields": { "user": 1, "source": "Crypto", "category": 6, "amount": "200.00", "date": "2025-09-13", "notes": "Profit from trading" }},
+  { "model": "expenses.income", "pk": 14, "fields": { "user": 1, "source": "Stock Sale", "category": 6, "amount": "500.00", "date": "2025-09-14", "notes": "Sold shares" }},
+  { "model": "expenses.income", "pk": 15, "fields": { "user": 1, "source": "Commission", "category": 6, "amount": "180.00", "date": "2025-09-15", "notes": "Referral bonus" }},
+  { "model": "expenses.income", "pk": 16, "fields": { "user": 1, "source": "Workshop", "category": 6, "amount": "220.00", "date": "2025-09-16", "notes": "Coding workshop" }},
+  { "model": "expenses.income", "pk": 17, "fields": { "user": 1, "source": "App Sales", "category": 6, "amount": "300.00", "date": "2025-09-17", "notes": "PlayStore revenue" }},
+  { "model": "expenses.income", "pk": 18, "fields": { "user": 1, "source": "Art Commission", "category": 6, "amount": "250.00", "date": "2025-09-18", "notes": "Digital art order" }},
+  { "model": "expenses.income", "pk": 19, "fields": { "user": 1, "source": "Affiliate", "category": 6, "amount": "100.00", "date": "2025-09-19", "notes": "Amazon affiliate" }},
+  { "model": "expenses.income", "pk": 20, "fields": { "user": 1, "source": "Prize", "category": 6, "amount": "400.00", "date": "2025-09-20", "notes": "Hackathon prize" }}
+]

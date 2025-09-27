@@ -6,7 +6,7 @@ import { BsCurrencyDollar } from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { closeSidebar } from "../redux/slices/SidebarSlice";
-
+import displayPic from "../assets/display-pic.png"
 export interface SidebarProps {
   // isOpen: boolean;
   // onClose: () => void;
@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     color: "#222",
   };
 const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.name);
-  const user = { name: userName, avatar: "https://i.pravatar.cc/80?img=3" };
+  const user = { name: userName };
 
   return (
     <>
@@ -94,7 +94,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
         {/* User */}
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <img
-            src={user.avatar}
+            src={displayPic}
             alt={user.name}
             style={{
               width: 72,

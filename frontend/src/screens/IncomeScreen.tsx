@@ -316,7 +316,15 @@ const IncomeScreen: React.FC = () => {
                 </option>
               ))}
             </select>
-            <button className="btn btn-outline btn-xs-download see-all-btn">Download</button>
+            <button className="btn btn-outline btn-xs-download see-all-btn">
+              <a
+          href="http://127.0.0.1:8000/income/transactions/csv/"
+          download
+          className="btn btn-outline btn-xs-download see-all-btn"
+        >
+          Download CSV
+        </a>
+            </button>
           </div>
         </header>
 
