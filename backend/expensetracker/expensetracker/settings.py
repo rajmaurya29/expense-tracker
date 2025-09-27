@@ -23,13 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-@74lx@y&&cmkol(ag+w4-@6t(d5lzb!pwr)=ou03@lfsc4#8!0'
-
+SECRET_KEY = config("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
 # Application definition
 
@@ -97,6 +96,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -177,31 +177,38 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 # CORS_ALLOWED_ORIGINS=[
 #     "http://localhost:5173",
 # ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
+# CSRF_TRUSTED_ORIGINS = [
+#     "http://localhost:5173",
 
+# ]
+
+
+CORS_ALLOW_ALL_ORIGINS = False
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",   # frontend in dev
 ]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://your-backend.onrender.com",  # replace with your real Render backend URL
+    "http://localhost:5173",
+]
+
 # SESSION_COOKIE_SAMESITE = "None"
 # SESSION_COOKIE_SECURE = False   # Only because local dev is http
 # CSRF_COOKIE_SAMESITE = "None"
 # CSRF_COOKIE_SECURE = False
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "heyho5278@gmail.com"          # your Gmail
-EMAIL_HOST_PASSWORD = "wjdqzkimklsgknke"        # 16-char App Password
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
