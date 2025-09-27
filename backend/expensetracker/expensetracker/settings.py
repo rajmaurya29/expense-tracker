@@ -204,7 +204,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://your-backend.onrender.com",  # replace with your real Render backend URL
+    "https://expense-tracker-f87l.onrender.com",  # replace with your real Render backend URL
     "http://localhost:5173",
 ]
 
