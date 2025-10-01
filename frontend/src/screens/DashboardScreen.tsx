@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import axios from "axios";
 import { Doughnut, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -23,7 +22,6 @@ import { recentTotals } from "../redux/slices/RecentTotalSlice";
 import { dashboardIncomes } from "../redux/slices/DashboardIncomeSlice";
 import { dashboardExpenses } from "../redux/slices/DashboardExpenseSlice";
 // import DownloadCSV from "../components/DownloadCSV";
-const API_URL = import.meta.env.VITE_API_URL as string;
 
 ChartJS.register(
   ArcElement,
@@ -60,11 +58,6 @@ type Txn_Income = {
   icon?: string;
 };
 
-type TTxn = {
-  "total amount": any;
-  "total income": any;
-  "total expense": any;
-};
 
 const inr = new Intl.NumberFormat(undefined, {
   style: "currency",

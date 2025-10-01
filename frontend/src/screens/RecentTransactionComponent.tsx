@@ -1,5 +1,4 @@
 import  { useEffect, useState, useMemo } from "react";
-import axios from "axios";
 import type { RootState, AppDispatch } from "../redux/store";
 import { useSelector,useDispatch } from "react-redux";
 import { MdArrowOutward } from "react-icons/md";
