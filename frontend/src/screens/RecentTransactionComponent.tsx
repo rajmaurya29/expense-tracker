@@ -1,6 +1,10 @@
 import  { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import type { RootState, AppDispatch } from "../redux/store";
+import { useSelector,useDispatch } from "react-redux";
 import { MdArrowOutward } from "react-icons/md";
+import { recentTransactions } from "../redux/slices/RecentTransactionSlice";
+import { totalTransactions } from "../redux/slices/TotalTransactionSlice";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 type Txn = {
@@ -23,23 +27,32 @@ const inr = new Intl.NumberFormat(undefined, {
 const currency = (n: number) => inr.format(n);
 
 function RecentTransactionComponent() {
+  const dispatch=useDispatch<AppDispatch>();
   const [initialTxns, setInitialTxns] = useState<Txn[]>([]);
   const [allTxns, setAllTxns] = useState<Txn[] | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
 
   const [initialState, setInitialState] = useState<FetchState>({ loading: true, error: null });
   const [allState, setAllState] = useState<FetchState>({ loading: false, error: null });
+  const recentTransactionSelector=useSelector((s:RootState)=>s.recentTransaction)
+  const totalTransactionSelector=useSelector((s:RootState)=>s.totalTransaction)
+
+  useEffect(()=>{
+    if(recentTransactionSelector.recentTransaction.length==0)
+    dispatch(recentTransactions())
+  },[dispatch,recentTransactionSelector])
+
 
   useEffect(() => {
     let abort = false;
     const fetchInitial = async () => {
       setInitialState({ loading: true, error: null });
       try {
-        const res = await axios.get<Txn[]>(`${API_URL}/users/transactions/?limit=10`, {
-          withCredentials: true,
-        });
+        
+        
         if (abort) return;
-        const list = Array.isArray(res.data) ? res.data : [];
+        const list = Array.isArray(recentTransactionSelector.recentTransaction) ? recentTransactionSelector.recentTransaction: [];
+        // console.log(recentTransactionSelector)
         setInitialTxns(list.slice(0, 10));
         setInitialState({ loading: false, error: null });
       } catch (err: any) {
@@ -55,17 +68,17 @@ function RecentTransactionComponent() {
     return () => {
       abort = true;
     };
-  }, []);
+  }, [recentTransactionSelector]);
 
   const handleToggle = async () => {
     if (!expanded) {
       if (!allTxns) {
         setAllState({ loading: true, error: null });
+        dispatch(totalTransactions());
         try {
-          const res = await axios.get<Txn[]>(`${API_URL}/users/transactions-total/`, {
-            withCredentials: true,
-          });
-          const list = Array.isArray(res.data) ? res.data : [];
+          
+          const list = Array.isArray(totalTransactionSelector.totalTransaction) ? totalTransactionSelector.totalTransaction : [];
+          
           setAllTxns(list);
           setAllState({ loading: false, error: null });
         } catch (err: any) {

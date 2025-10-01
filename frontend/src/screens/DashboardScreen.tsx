@@ -14,10 +14,14 @@ import {
 } from "chart.js";
 import type { ChartData, ChartOptions, TooltipItem } from "chart.js";
 import { MdArrowOutward } from "react-icons/md";
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import { useSelector,useDispatch } from "react-redux";
+import type { RootState, AppDispatch } from "../redux/store";
 import { useNavigate } from "react-router-dom";
 import RecentTransactionComponent from "./RecentTransactionComponent";
+import { totalAmount } from "../redux/slices/TotalAmountSlice";
+import { recentTotals } from "../redux/slices/RecentTotalSlice";
+import { dashboardIncomes } from "../redux/slices/DashboardIncomeSlice";
+import { dashboardExpenses } from "../redux/slices/DashboardExpenseSlice";
 // import DownloadCSV from "../components/DownloadCSV";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -71,6 +75,8 @@ const currency = (n: number) => inr.format(n);
 const doughnutColors = ["#7c3aed", "#fb923c", "#ef4444"];
 
 const DashboardScreen: React.FC = () => {
+  const dispatch=useDispatch<AppDispatch>();
+
   const navigate = useNavigate();
   const [totalBalance, setTotalBalance] = useState("");
   const [totalIncome, setTotalIncome] = useState("");
@@ -80,83 +86,59 @@ const DashboardScreen: React.FC = () => {
   const [incomeList, setIncomeList] = useState<Txn_Income[]>([]);
   const [expenseList, setExpenseList] = useState<Txn[]>([]);
   const userSelector = useSelector((s: RootState) => s.userInfo);
+  const totalSelector=useSelector((s:RootState)=>s.totalAmount.amount);
+  const recenttotalSelector=useSelector((s:RootState)=>s.recentTotal.recentTotal) ;
+  const dashboardIncomeSelector=useSelector((s:RootState)=>s.dashboardIncome.dashboardIncome) ;
+  const dashboardExpenseSelector=useSelector((s:RootState)=>s.dashboardExpense.dashboardExpense) ;
 
   useEffect(() => {
     if (!userSelector.userInfo) navigate("/login");
   }, [userSelector.userInfo, navigate]);
 
   useEffect(() => {
-    const fetchTotal = async () => {
-      try {
-        const res = await axios.get<TTxn>(`${API_URL}/users/total/`, {
-          withCredentials: true,
-        });
-        setTotalBalance(String(res.data["total amount"] ?? 0));
-        setTotalIncome(String(res.data["total income"] ?? 0));
-        setTotalExpenses(String(res.data["total expense"] ?? 0));
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchTotal();
-  }, []);
+    if(!totalSelector)
+    dispatch(totalAmount());
+  }, [dispatch,totalSelector]);
+  useEffect(()=>{
+    if(totalSelector){
+      setTotalBalance(String(totalSelector["total amount"]))
+      setTotalIncome(String(totalSelector["total income"]))
+      setTotalExpenses(String(totalSelector["total expense"]))
+    }
+  },[totalSelector])
 
-  // useEffect(() => {
-  //   const fetchTransactions = async () => {
-  //     try {
-  //       const res = await axios.get<Txn[]>("http://127.0.0.1:8000/users/transactions/", {
-  //         withCredentials: true,
-  //       });
-  //       setRecentTxns(res.data ?? []);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   fetchTransactions();
-  // }, []);
 
   
-  useEffect(() => {
-    const fetchTotal= async () => {
-      try {
-        const res = await axios.get<Total[]>(`${API_URL}/users/recent-total/`, {
-          withCredentials: true,
-        });
-        setRecentTotal(res.data ?? []);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchTotal();
-  }, []);
+  useEffect(()=>{
+    if(recenttotalSelector.length==0)
+    dispatch(recentTotals());
+  },[dispatch,recenttotalSelector])
 
-  useEffect(() => {
-    const fetchIncome = async () => {
-      try {
-        const res = await axios.get<Txn_Income[]>(`${API_URL}/income/transactions/`, {
-          withCredentials: true,
-        });
-        setIncomeList(res.data ?? []);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchIncome();
-  }, []);
+  useEffect(()=>{
+    if(recenttotalSelector)
+    setRecentTotal(recenttotalSelector)
+  },[recenttotalSelector])
 
-  useEffect(() => {
-    const fetchExpense = async () => {
-      try {
-        const res = await axios.get<Txn[]>(`${API_URL}/expense/transactions/`, {
-          withCredentials: true,
-        });
-        setExpenseList(res.data ?? []);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchExpense();
-  }, []);
+  useEffect(()=>{
+    if(dashboardIncomeSelector.length==0)
+    dispatch(dashboardIncomes());
+  },[dispatch,dashboardIncomeSelector])
+
+  useEffect(()=>{
+    if(dashboardIncomeSelector)
+      setIncomeList(dashboardIncomeSelector)
+  },[dashboardIncomeSelector])
+
+   useEffect(()=>{
+    if(dashboardExpenseSelector.length==0)
+    dispatch(dashboardExpenses());
+  },[dispatch,dashboardExpenseSelector])
+
+  
+  useEffect(()=>{
+    if(dashboardExpenseSelector)
+      setExpenseList(dashboardExpenseSelector)
+  },[dashboardExpenseSelector])
 
   const kpi = useMemo(
     () => ({

@@ -10,4 +10,6 @@ urlpatterns = [
     path('recent-total/',user_views.recentTotal,name='recent-total'),
     path('transactions-total/',user_views.recentTransactionsTotal,name='recent-transactions-total'),
     path('transactions/csv/',user_views.export_csv,name='export-csv'),
+    path('health/',user_views.health,name='health'),
+
 ]

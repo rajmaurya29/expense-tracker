@@ -46,6 +46,12 @@ class MyTokenObtainPairView(TokenObtainPairView):
         )
         return response
 
+
+@api_view(['HEAD'])
+def health(request):
+    return Response({"status":"ok"})
+
+
 @api_view(['POST'])
 def registerUser(request):
     data=request.data
