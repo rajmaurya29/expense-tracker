@@ -354,7 +354,8 @@ const ExpenseScreen: React.FC = () => {
               </li>
             ))}
             {leftHalf.length === 0 && <li className="empty-row">No items</li>}
-          </ul>
+          </ul> 
+          
 
           {/* Right column */}
           <ul className="list list-lg">
