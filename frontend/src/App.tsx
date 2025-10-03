@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import type { AppDispatch } from "./redux/store";
 import { closeSidebar } from "./redux/slices/SidebarSlice"
 import LoginScreen from './screens/LoginScreen'
@@ -11,6 +11,7 @@ import LogoutScreen from "./screens/LogoutScreen";
 import IncomeScreen from "./screens/IncomeScreen";
 import ExpenseScreen from "./screens/ExpenseScreen";
 import DashboardScreen from "./screens/DashboardScreen";
+import { fetchUser } from "./redux/slices/UserSlice";
 
 const HEADER_HEIGHT = 54;
 const SIDEBAR_WIDTH = 260;
@@ -20,7 +21,9 @@ const Shell: React.FC = () => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 769);
   const location = useLocation();
   const dispatch=useDispatch<AppDispatch>();
-
+  useEffect(()=>{
+    dispatch(fetchUser());
+  },[])
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 769);
     window.addEventListener("resize", onResize);

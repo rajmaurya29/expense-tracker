@@ -51,7 +51,17 @@ class MyTokenObtainPairView(TokenObtainPairView):
 def health(request):
     return Response({"status":"ok"})
 
-
+@api_view(['GET'])
+def fetchUser(request):
+    try:
+        user=request.user
+        if not user.is_authenticated:
+            return Response({"message":"Invalid User"},status=HTTP_400_BAD_REQUEST)
+        userSerializer=UserSerializer(user,many=False)
+        return Response(userSerializer.data)
+    except:
+        return Response({"message":"Invalid User"},status=HTTP_400_BAD_REQUEST)
+    
 @api_view(['POST'])
 def registerUser(request):
     data=request.data

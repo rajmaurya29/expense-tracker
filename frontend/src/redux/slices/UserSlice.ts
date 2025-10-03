@@ -2,8 +2,7 @@ import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
 import axios from 'axios'
 const API_URL = import.meta.env.VITE_API_URL as string;
 
-const loginInfoFromStorage=localStorage.getItem("userInfo")?
-JSON.parse(localStorage.getItem("userInfo")!):null;
+// const loginInfoFromStorage=null;
 
 
 export const loginUser=createAsyncThunk(
@@ -34,6 +33,20 @@ export const logoutUser=createAsyncThunk(
     
 }
 )
+export const fetchUser=createAsyncThunk(
+    "fetchUser",async (_,thunkAPI)=>{
+        try{
+            const response= await axios.get(`${API_URL}/users/fetch/`,
+               { withCredentials:true}
+            )
+            return response.data;
+        }
+        catch(error:any){
+            return thunkAPI.rejectWithValue(error.message);
+        }
+    
+}
+)
 interface loginState{
     userInfo:any,
     loading:boolean,
@@ -41,7 +54,7 @@ interface loginState{
 }
 
 const initialState:loginState={
-    userInfo:loginInfoFromStorage,
+    userInfo:null,
     loading:false,
     error:null
 };
@@ -58,20 +71,24 @@ const UserSlice=createSlice({
         builder.addCase(loginUser.fulfilled,(state,action)=>{
             state.loading=false,
             state.userInfo=action.payload
-            const item=action.payload
-            let itemList={email:item['email'],id:item['id'],isAdmin:item['isAdmin'],name:item['name'],username:item['username'],_id:item['_id']}
-            localStorage.setItem("userInfo",JSON.stringify(itemList))
+            // const item=action.payload
+            // let itemList={email:item['email'],id:item['id'],isAdmin:item['isAdmin'],name:item['name'],username:item['username'],_id:item['_id']}
+            // localStorage.setItem("userInfo",JSON.stringify(itemList))
             // console.log("action-",action.payload)
         })
         builder.addCase(loginUser.rejected,(state,action)=>{
             state.loading=false,
             state.error=action.payload
         })
+        builder.addCase(fetchUser.fulfilled,(state,actions)=>{
+            state.userInfo=actions.payload,
+            state.loading=false
+        })
         builder.addCase(logoutUser.fulfilled,(state)=>{
             state.userInfo=null,
             state.loading=false,
-            state.error=null,
-            localStorage.removeItem("userInfo")
+            state.error=null
+            // localStorage.removeItem("userInfo")
         })
     }
 })
