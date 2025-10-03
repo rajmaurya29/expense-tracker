@@ -26,14 +26,14 @@ const LoginScreen: React.FC = () => {
     setSubmitting(true);
     try {
       // Demo login
-      await new Promise((r) => setTimeout(r, 800));
-      dispatch(loginUser({ email, password }))
-      console.log("Login:", { email, password });
+      // await new Promise((r) => setTimeout(r, 800));
+      await dispatch(loginUser({ email, password })).unwrap()
+      // console.log("Login
+      // :", { email, password });
     } catch (err: any) {
-      setError(err?.message || "Login failed. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+      setSubmitting(false)
+      setError(err?.message || "Invalid Credentials");
+    } 
   };
 
   return (
