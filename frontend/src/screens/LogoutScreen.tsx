@@ -24,16 +24,15 @@ const LogoutScreen: React.FC = () => {
     try {
       // TODO: replace with real sign-out
       // e.g., await api.logout(); localStorage.removeItem("token");
-      await new Promise((r) => setTimeout(r, 700));
-      dispatch(logoutUser());
+      // await new Promise((r) => setTimeout(r, 700));
+      await dispatch(logoutUser()).unwrap();
       setMessage("You have been logged out.");
       navigate("/login");
       // Optional: redirect after success
       // setTimeout(() => (window.location.href = "/login"), 800);
     } catch {
-      setMessage("Failed to log out. Please try again.");
-    } finally {
       setIsProcessing(false);
+      setMessage("Failed to log out. Please try again.");
     }
   };
 
