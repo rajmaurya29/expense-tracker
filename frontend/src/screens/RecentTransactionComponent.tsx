@@ -76,9 +76,9 @@ function RecentTransactionComponent() {
         dispatch(totalTransactions());
         try {
           
-          const list = Array.isArray(totalTransactionSelector.totalTransaction) ? totalTransactionSelector.totalTransaction : [];
+          // const list = Array.isArray(totalTransactionSelector.totalTransaction) ? totalTransactionSelector.totalTransaction : [];
           
-          setAllTxns(list);
+          setAllTxns(totalTransactionSelector.totalTransaction);
           setAllState({ loading: false, error: null });
         } catch (err: any) {
           setAllState({

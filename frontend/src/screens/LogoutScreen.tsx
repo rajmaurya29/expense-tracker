@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-// import "../index.css"; // ensure global styles are loaded somewhere in your app
 import { useDispatch,useSelector } from "react-redux";
 import type { RootState,AppDispatch } from "../redux/store";
 import { logoutUser } from "../redux/slices/UserSlice";
@@ -22,14 +21,11 @@ const LogoutScreen: React.FC = () => {
     setIsProcessing(true);
     setMessage(null);
     try {
-      // TODO: replace with real sign-out
-      // e.g., await api.logout(); localStorage.removeItem("token");
-      // await new Promise((r) => setTimeout(r, 700));
+     
       await dispatch(logoutUser()).unwrap();
       setMessage("You have been logged out.");
       navigate("/login");
-      // Optional: redirect after success
-      // setTimeout(() => (window.location.href = "/login"), 800);
+      
     } catch {
       setIsProcessing(false);
       setMessage("Failed to log out. Please try again.");
