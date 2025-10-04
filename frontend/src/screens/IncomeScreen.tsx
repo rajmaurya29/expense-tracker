@@ -163,7 +163,14 @@ const IncomeScreen: React.FC = () => {
   };
 
   // Doughnut chart config (uses category totals from selector)
-  const incomeColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
+const incomeColors = [
+  "#1E88E5", // blue
+  "#43A047", // green
+  "#FB8C00", // orange
+  "#E53935", // red
+  "#8E24AA", // purple
+  "#FDD835", // yellow
+];
   const doughnutData: ChartData<"doughnut"> = {
     labels: catNames,
     datasets: [
@@ -199,7 +206,7 @@ const IncomeScreen: React.FC = () => {
       },
     },
   };
-  // const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
+  const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
   // Modal handlers
   const openModal = () => setModalOpen(true);
@@ -282,13 +289,15 @@ const IncomeScreen: React.FC = () => {
               </div>
               <ul className="pie-legend">
                 {catNames.map((lbl, i) => {
-                  // const val = catFreqs[i] ?? 0;
-                  // const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
+                  const val = catFreqs[i] ?? 0;
+                  const pct = totalIncome ? Math.round((val / totalIncome) * 100) : 0;
                   return (
                     <li key={`${lbl}-${i}`} className="pie-legend-item">
                       <span className="dot" style={{ background: incomeColors[i % incomeColors.length] }} />
                       <span className="name">{lbl}</span>
-                      
+                      <span className="val">
+                        {currency(Number(val) || 0)} · {pct}%
+                      </span>
                     </li>
                   );
                 })}

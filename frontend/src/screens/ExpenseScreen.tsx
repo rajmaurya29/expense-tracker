@@ -156,7 +156,14 @@ const ExpenseScreen: React.FC = () => {
   };
 
   // Doughnut chart (category totals)
-  const expenseColors = ["#7dd3fc", "#a78bfa", "#8b5cf6", "#34d399", "#f472b6", "#fbbf24"];
+const expenseColors = [
+  "#1E88E5", // blue
+  "#43A047", // green
+  "#FB8C00", // orange
+  "#E53935", // red
+  "#8E24AA", // purple
+  "#FDD835", // yellow
+];
   const doughnutData: ChartData<"doughnut"> = {
     labels: catNames,
     datasets: [
@@ -355,7 +362,7 @@ const ExpenseScreen: React.FC = () => {
             ))}
             {leftHalf.length === 0 && <li className="empty-row">No items</li>}
           </ul> 
-          
+
 
           {/* Right column */}
           <ul className="list list-lg">

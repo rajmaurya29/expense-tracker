@@ -99,9 +99,12 @@ def income_category(request):
             user=request.user,
             category_id=i["id"])
         income_serializer=IncomeSerializer(income,many=True)
+        total=0
         if(len(income_serializer.data)>0):
             category_name.append(i["name"])
-            category_frequency.append(len(income_serializer.data))
+            for i in income_serializer.data:
+                total+=float(i["amount"])
+            category_frequency.append(total)
         # value[i["name"]]=len(income_serializer.data)
 
     # serializer=CategorySerializer(category,many=True)

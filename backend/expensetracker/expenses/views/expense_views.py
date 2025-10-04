@@ -100,9 +100,14 @@ def expense_category(request):
             user=request.user,
             category_id=i["id"])
         expense_serializer=ExpenseSerializer(expense,many=True)
+        # print(expense_serializer.data)
         if(len(expense_serializer.data)>0):
+
             category_name.append(i["name"])
-            category_frequency.append(len(expense_serializer.data))
+            total=0
+            for i in expense_serializer.data:
+                total=total+float(i["amount"])
+            category_frequency.append(total)
         # value[i["name"]]=len(income_serializer.data)
 
     # serializer=CategorySerializer(category,many=True)
