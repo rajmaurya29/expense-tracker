@@ -323,7 +323,7 @@ const DashboardScreen: React.FC = () => {
               <h3 className="card-title">Incomes</h3>
               {/* <DownloadCSV/> */}
               
-              <button className="btn btn-outline btn-xs" onClick={()=>navigate("/")}>
+              <button className="btn btn-outline btn-xs" onClick={()=>navigate("/income")}>
                 See all <MdArrowOutward size={14} />
               </button>
             </div>
@@ -356,7 +356,7 @@ const DashboardScreen: React.FC = () => {
           <div className="col">
             <div className="list-head">
               <h3 className="card-title">Expenses</h3>
-              <button className="btn btn-outline btn-xs">
+              <button className="btn btn-outline btn-xs" onClick={()=>navigate("/expense")}>
                 See all <MdArrowOutward size={14} />
               </button>
             </div>

@@ -208,7 +208,7 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://expense-tracker-f87l.onrender.com",  # replace with your real Render backend URL
     "http://localhost:5173",
-    
+    "https://expense-tracker-sigma-nine-67.vercel.app"
 ]
 
 # SESSION_COOKIE_SAMESITE = "None"

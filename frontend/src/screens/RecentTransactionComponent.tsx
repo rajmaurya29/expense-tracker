@@ -71,28 +71,27 @@ function RecentTransactionComponent() {
 
   const handleToggle = async () => {
     if (!expanded) {
-      if (!allTxns) {
+      // console.log(allTxns)
+      if (allTxns && allTxns.length==0) {
+        
         setAllState({ loading: true, error: null });
         dispatch(totalTransactions());
-        try {
-          
-          // const list = Array.isArray(totalTransactionSelector.totalTransaction) ? totalTransactionSelector.totalTransaction : [];
-          
-          setAllTxns(totalTransactionSelector.totalTransaction);
-          setAllState({ loading: false, error: null });
-        } catch (err: any) {
-          setAllState({
-            loading: false,
-            error: err?.message || "Failed to load all transactions",
-          });
-          return;
-        }
+        
       }
       setExpanded(true);
     } else {
       setExpanded(false);
     }
   };
+
+  useEffect(()=>{
+    if(totalTransactionSelector.totalTransaction){
+      setAllTxns(totalTransactionSelector.totalTransaction);
+          setAllState({ loading: false, error: null });
+    }
+
+  },[totalTransactionSelector.totalTransaction])
+
 
   const showLoading =
     (!expanded && initialState.loading) || (expanded && allState.loading);
