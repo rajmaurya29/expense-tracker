@@ -251,7 +251,7 @@ const incomeColors = [
   // Delete handler (wire to real thunk)
   const onDeleteIncome = (id:  number) => {
     if (confirm("Delete this income item?")) {
-      console.log(id)
+      // console.log(id)
       dispatch(deleteIncome(id)).then(() => { dispatch(income()); dispatch(categoryIncome()); });
     }
   };
