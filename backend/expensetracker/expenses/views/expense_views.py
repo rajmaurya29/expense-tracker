@@ -11,20 +11,25 @@ from rest_framework.status import *
 from expenses.models import *
 from django.http import HttpResponse
 import csv 
-
+from datetime import datetime
 @api_view(['post'])
 @permission_classes([IsAuthenticated])
 def create_expense(request):
+    # print(request.data["date"])
     data=request.data
     category,_=Category.objects.get_or_create(
         name=data['category']
     )
+    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
+    # print(date_str)
     exp=Expense.objects.create(
         user=request.user,
         title=data['title'],
         amount=data['amount'],
         category=category,
-        notes=data['notes']
+        notes=data['notes'],
+        date=date_str
+
         
     )
     serializer=ExpenseSerializer(exp,many=False)

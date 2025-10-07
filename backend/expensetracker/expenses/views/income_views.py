@@ -11,6 +11,7 @@ from rest_framework.status import *
 from expenses.models import *
 from django.http import HttpResponse
 import csv 
+from datetime import datetime
 
 @api_view(['post'])
 @permission_classes([IsAuthenticated])
@@ -19,12 +20,15 @@ def create_income(request):
     category,_=Category.objects.get_or_create(
         name=data['category']
     )
+    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
     income=Income.objects.create(
         user=request.user,
         source=data['source'],
         category=category,
         amount=data['amount'],
-        notes=data['notes']
+        notes=data['notes'],
+        date=date_str
+
         
     )
     serializer=IncomeSerializer(income,many=False)

@@ -56,7 +56,7 @@ def fetchUser(request):
     try:
         user=request.user
         if not user.is_authenticated:
-            return Response({"message":"Invalid User"},status=HTTP_400_BAD_REQUEST)
+            return Response({"message":"Invalid User"},status=HTTP_401_UNAUTHORIZED)
         userSerializer=UserSerializer(user,many=False)
         return Response(userSerializer.data)
     except:
