@@ -95,7 +95,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
         <div style={{ textAlign: "center", marginBottom: 24 }}>
           <img
             src={displayPic}
-            alt={user.name}
+            alt={user.name || "Profile"}
             style={{
               width: 72,
               height: 72,
