@@ -65,7 +65,7 @@ def fetchUser(request):
 @api_view(['POST'])
 def registerUser(request):
     data=request.data
-    print(data)
+    # print(data)
     try:
         user=User.objects.create_user(
             first_name=data["name"],

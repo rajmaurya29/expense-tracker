@@ -12,18 +12,30 @@ import IncomeScreen from "./screens/IncomeScreen";
 import ExpenseScreen from "./screens/ExpenseScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import { fetchUser } from "./redux/slices/UserSlice";
-
 const HEADER_HEIGHT = 54;
 const SIDEBAR_WIDTH = 260;
 
 const Shell: React.FC = () => {
 
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 769);
+  const [loader,setLoader]=useState(false);
   const location = useLocation();
   const dispatch=useDispatch<AppDispatch>();
-  useEffect(()=>{
-    dispatch(fetchUser());
-  },[])
+  useEffect(() => {
+  const loadUser = async () => {
+    try {
+      setLoader(true);
+      await dispatch(fetchUser());  // wait until fetchUser finishes
+    } catch (e) {
+      console.error("Error fetching user:", e);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  loadUser();
+}, [dispatch]);
+
   useEffect(() => {
     const onResize = () => setIsDesktop(window.innerWidth >= 769);
     window.addEventListener("resize", onResize);
@@ -37,6 +49,17 @@ const Shell: React.FC = () => {
 
   return (
     <>
+      {
+        loader ? (
+          <div className="loader-container">
+           <div className="loader">
+             <div></div><div></div><div></div><div></div><div></div>
+           </div>
+          </div>
+
+  ) :
+        (
+        <>  
       <Header headerHeight={HEADER_HEIGHT} />
       <Sidebar
         
@@ -64,13 +87,13 @@ const Shell: React.FC = () => {
 
           <Route path="/signup" element={<SignUpScreen/>} />
 
-          <Route path="/dashboard" element={<h2>Dashboard</h2>} />
-          <Route path="/income" element={<h2>Income</h2>} />
-          <Route path="/expense" element={<h2>Expense</h2>} />
-          <Route path="/logout" element={<h2>Logout</h2>} />
+          
           <Route path="*" element={<h2>Not Found</h2>} />
         </Routes>
       </main>
+
+        </>)
+      }
     </>
   );
 };
