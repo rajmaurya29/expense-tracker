@@ -77,6 +77,7 @@ const IncomeScreen: React.FC = () => {
       if(!userSelector.userInfo) navigate("/login");
     })
   const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
+  const rows_bar: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
   const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
   const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
 
@@ -112,11 +113,13 @@ const IncomeScreen: React.FC = () => {
   // Bar chart config
   const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
   const barData: ChartData<"bar"> = {
-    labels: rows.map((d) => d.date),
+    // d.toReversed()
+    // const d1=rows.toReversed();
+    labels: rows.slice().reverse().map((d) => d.date),
     datasets: [
       {
         label: "Income",
-        data: rows.map((d) => Number(d.amount) || 0),
+        data: rows.slice().reverse().map((d) => Number(d.amount) || 0),
         backgroundColor: "#7c3aed",
         borderColor: "#6d28d9",
         borderWidth: 1.5,

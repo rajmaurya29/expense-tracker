@@ -112,11 +112,11 @@ const ExpenseScreen: React.FC = () => {
   // Bar chart
   const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
   const barData: ChartData<"bar"> = {
-    labels: rows.map((d) => d.date),
+    labels: rows.slice().reverse().map((d) => d.date),
     datasets: [
       {
         label: "Expense",
-        data: rows.map((d) => Number(d.amount) || 0),
+        data: rows.slice().reverse().map((d) => Number(d.amount) || 0),
         backgroundColor: "#7c3aed",
         borderColor: "#6d28d9",
         borderWidth: 1.5,
