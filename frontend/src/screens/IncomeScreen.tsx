@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -39,6 +40,7 @@ type DraftIncome = {
   notes: string;
   date: string; // yyyy-mm-dd
 };
+
 const inr = new Intl.NumberFormat(undefined, {
   style: "currency",
   currency: "INR",
@@ -55,15 +57,13 @@ const niceMax = (v: number) => {
 
 const IncomeScreen: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
-  // Fetch data
   useEffect(() => {
     dispatch(income());
     dispatch(categoryIncome());
   }, [dispatch]);
 
-  // Selectors with safe fallbacks
   const incomeSelector = useSelector((s: RootState) => s.userIncome.userIncome) as IncomeRow[] | undefined;
   const categoryNameSelector = useSelector((s: RootState) => s.categoryIncome.income?.category_name) as
     | string[]
@@ -71,21 +71,19 @@ const IncomeScreen: React.FC = () => {
   const categoryFrequencySelector = useSelector((s: RootState) => s.categoryIncome.income?.category_frequency) as
     | number[]
     | undefined;
-  const userSelector=useSelector((s:RootState)=>s.userInfo)
-  
-    useEffect(()=>{
-      if(!userSelector.userInfo) navigate("/login");
-    })
+  const userSelector = useSelector((s: RootState) => s.userInfo);
+
+  useEffect(() => {
+    if (!userSelector.userInfo) navigate("/login");
+  });
+
   const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
-  // const rows_bar: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
   const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
   const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
 
-  // Category filter
   const [category, setCategory] = useState<string>("__ALL__");
-
-  // Modal state
   const [isModalOpen, setModalOpen] = useState(false);
+  const [editingIncome, setEditingIncome] = useState<IncomeRow | null>(null);
   const [draft, setDraft] = useState<DraftIncome>({
     source: "",
     amount: "",
@@ -94,14 +92,12 @@ const IncomeScreen: React.FC = () => {
     date: new Date().toISOString().slice(0, 10),
   });
 
-  // Distinct categories for dropdown
   const categories = useMemo(() => {
     const set = new Set<string>();
     rows.forEach((i) => i.categoryName && set.add(i.categoryName));
     return Array.from(set).sort((a, b) => a.localeCompare(b));
   }, [rows]);
 
-  // Filtered list + halves
   const filtered = useMemo(
     () => (category === "__ALL__" ? rows : rows.filter((i) => i.categoryName === category)),
     [rows, category]
@@ -110,11 +106,8 @@ const IncomeScreen: React.FC = () => {
   const leftHalf = filtered.slice(0, mid);
   const rightHalf = filtered.slice(mid);
 
-  // Bar chart config
   const yMax = niceMax(Math.max(1, ...rows.map((d) => Number(d.amount) || 0)));
   const barData: ChartData<"bar"> = {
-    // d.toReversed()
-    // const d1=rows.toReversed();
     labels: rows.slice().reverse().map((d) => d.date),
     datasets: [
       {
@@ -130,10 +123,11 @@ const IncomeScreen: React.FC = () => {
       },
     ],
   };
+
   const barOptions: ChartOptions<"bar"> = {
     responsive: true,
     maintainAspectRatio: false,
-    layout: { padding: { right: 8, left: 8, top: 4, bottom: 0} },
+    layout: { padding: { right: 8, left: 8, top: 4, bottom: 0 } },
     plugins: {
       legend: { display: false },
       title: { display: false },
@@ -165,15 +159,8 @@ const IncomeScreen: React.FC = () => {
     },
   };
 
-  // Doughnut chart config (uses category totals from selector)
-const incomeColors = [
-  "#1E88E5", // blue
-  "#43A047", // green
-  "#FB8C00", // orange
-  "#E53935", // red
-  "#8E24AA", // purple
-  "#FDD835", // yellow
-];
+  const incomeColors = ["#1E88E5", "#43A047", "#FB8C00", "#E53935", "#8E24AA", "#FDD835"];
+
   const doughnutData: ChartData<"doughnut"> = {
     labels: catNames,
     datasets: [
@@ -186,6 +173,7 @@ const incomeColors = [
       },
     ],
   };
+
   const doughnutOptions: ChartOptions<"doughnut"> = {
     responsive: true,
     maintainAspectRatio: false,
@@ -209,82 +197,122 @@ const incomeColors = [
       },
     },
   };
+
   const totalIncome = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
-  // Modal handlers
-  const openModal = () => setModalOpen(true);
+  const openModal = (item?: IncomeRow) => {
+    if (item) {
+      setEditingIncome(item);
+      setDraft({
+        source: item.source || "",
+        amount: String(item.amount) || "",
+        category: item.categoryName || "",
+        notes: item.notes || "",
+        date: item.date || new Date().toISOString().slice(0, 10),
+      });
+    } else {
+      setEditingIncome(null);
+      setDraft({
+        source: "",
+        amount: "",
+        category: "",
+        notes: "",
+        date: new Date().toISOString().slice(0, 10),
+      });
+    }
+    setModalOpen(true);
+  };
+
   const closeModal = () => setModalOpen(false);
-  const onChangeDraft = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+
+  const onChangeDraft = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setDraft((d) => ({ ...d, [name]: value }));
   };
-  const onSubmitDraft = (e: React.FormEvent) => {
+
+  const onSubmitDraft = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = Number(draft.amount);
     if (!draft.source.trim() || !draft.category.trim() || !draft.date || !isFinite(amt) || amt <= 0) {
       alert("Please fill Source, Category, valid Amount, and Date.");
       return;
     }
-    // Persist
-    dispatch(
-      createIncome({
+
+    if (editingIncome) {
+      // Update existing income
+      const updatedData = {
+        id: editingIncome.id,
         source: draft.source,
         amount: String(amt),
         categoryName: draft.category,
         notes: draft.notes,
         date: draft.date,
-      })
-    ).finally(() => {
-      dispatch(income());
-      dispatch(categoryIncome());
-    });
+      };
+      // console.log(updatedData)
+ 
 
+      try {
+         await axios.put(
+          `${API_URL}/income/edit/`,
+          updatedData,        // Axios automatically handles JSON
+          {
+            withCredentials: true  // sends cookies / session info
+          }
+        );
+
+      } catch (error:any) {
+      }
+
+    } else {
+      // Create new income
+      await dispatch(
+        createIncome({
+          source: draft.source,
+          amount: String(amt),
+          categoryName: draft.category,
+          notes: draft.notes,
+          date: draft.date,
+        })
+      );
+    }
+
+    dispatch(income());
+    dispatch(categoryIncome());
     closeModal();
-    setDraft({
-      source: "",
-      amount: "",
-      category: "",
-      notes: "",
-      date: new Date().toISOString().slice(0, 10),
-    });
   };
 
-  // Delete handler (wire to real thunk)
-  const onDeleteIncome = (id:  number) => {
+  const onDeleteIncome = (id: number) => {
     if (confirm("Delete this income item?")) {
-      // console.log(id)
-      dispatch(deleteIncome(id)).then(() => { dispatch(income()); dispatch(categoryIncome()); });
+      dispatch(deleteIncome(id)).then(() => {
+        dispatch(income());
+        dispatch(categoryIncome());
+      });
     }
   };
 
   return (
     <div className="page-wrap page-lg">
       {/* Overview */}
-       {/* <PiechartIncome/> */}
       <section className="card card-elevated card-lg">
         <header className="card-head card-head-split">
           <div>
             <h2 className="card-title card-title-lg">Overview</h2>
             <p className="card-subtitle card-subtitle-lg">Income over time and income share by category.</p>
           </div>
-        <div className="actions-row">
-            <button className="btn btn-light btn-pill btn-lg" aria-label="Add income" onClick={openModal}>
+          <div className="actions-row">
+            <button className="btn btn-light btn-pill btn-lg" aria-label="Add income" onClick={() => openModal()}>
               <span className="btn-icon btn-icon-lg">+</span> Add Income
             </button>
           </div>
         </header>
 
         <div className="chart-grid">
-          {/* Bar chart */}
           <div className="chart-left">
             <div className="chartjs-box">
               <Bar data={barData} options={barOptions} />
             </div>
           </div>
 
-          {/* Doughnut */}
           <div className="chart-right">
             <div className="pie-wrap">
               <div className="chartjs-pie">
@@ -329,26 +357,26 @@ const incomeColors = [
               ))}
             </select>
             <button className="btn btn-outline btn-xs-download see-all-btn">
-              <a
-          href={`${API_URL}/income/transactions/csv/`}
-          download
-          className="btn btn-outline btn-xs-download see-all-btn"
-        >
-          Download CSV
-        </a>
+              <a href={`${API_URL}/income/transactions/csv/`} download className="btn btn-outline btn-xs-download see-all-btn">
+                Download CSV
+              </a>
             </button>
           </div>
         </header>
 
         <div className="columns-2 columns-2-lg">
-          {/* Left column */}
           <ul className="list list-lg">
             {leftHalf.map((item) => (
-              <li key={item.id} className="list-row list-row-lg hoverable">
+              <li
+                key={item.id}
+                className="list-row list-row-lg hoverable"
+                onClick={() => openModal(item)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="list-left">
                   <div className="dash-avatar" aria-hidden>
-                        <span className="dash-emoji">{ "🧾"}</span>
-                      </div>
+                    <span className="dash-emoji">🧾</span>
+                  </div>
                   <div>
                     <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
@@ -357,7 +385,15 @@ const incomeColors = [
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(Number(item.id))}>
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete income"
+                    title="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteIncome(Number(item.id));
+                    }}
+                  >
                     <MdDelete size={18} />
                   </button>
                 </div>
@@ -366,14 +402,18 @@ const incomeColors = [
             {leftHalf.length === 0 && <li className="empty-row">No items</li>}
           </ul>
 
-          {/* Right column */}
           <ul className="list list-lg">
             {rightHalf.map((item) => (
-              <li key={item.id} className="list-row list-row-lg hoverable">
+              <li
+                key={item.id}
+                className="list-row list-row-lg hoverable"
+                onClick={() => openModal(item)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="list-left">
                   <div className="dash-avatar" aria-hidden>
-                        <span className="dash-emoji">{ "🧾"}</span>
-                      </div>
+                    <span className="dash-emoji">🧾</span>
+                  </div>
                   <div>
                     <div className="list-title list-title-lg">{item.source ?? item.categoryName ?? "Income"}</div>
                     <div className="list-sub list-sub-lg">{item.date}</div>
@@ -382,7 +422,15 @@ const incomeColors = [
                 <div className="list-right">
                   <span className="amount amount-lg up">+ {currency(Number(item.amount) || 0)}</span>
                   {item.categoryName && <span className="chip chip-green chip-lg">{item.categoryName}</span>}
-                  <button className="icon-btn danger" aria-label="Delete income" title="Delete" onClick={() => onDeleteIncome(Number(item.id))}>
+                  <button
+                    className="icon-btn danger"
+                    aria-label="Delete income"
+                    title="Delete"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteIncome(Number(item.id));
+                    }}
+                  >
                     <MdDelete size={18} />
                   </button>
                 </div>
@@ -393,12 +441,11 @@ const incomeColors = [
         </div>
       </section>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal-card">
             <div className="modal-head">
-              <h3 className="modal-title">Add Income</h3>
+              <h3 className="modal-title">{editingIncome ? "Edit Income" : "Add Income"}</h3>
               <button className="icon-btn" aria-label="Close" onClick={closeModal}>
                 <MdClose size={20} />
               </button>
@@ -473,10 +520,14 @@ const incomeColors = [
                 />
               </div>
 
-              <div className="modal-actions">
-                <button type="submit" className="btn btn-primary">Save</button>
-                <button type="button" className="btn btn-ghost" onClick={closeModal}>Cancel</button>
-              </div>
+              <footer className="modal-foot">
+                <button type="submit" className="btn btn-primary">
+                  {editingIncome ? "Update" : "Save"}
+                </button>
+                <button type="button" className="btn btn-outline" onClick={closeModal}>
+                  Cancel
+                </button>
+              </footer>
             </form>
           </div>
         </div>

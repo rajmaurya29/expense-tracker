@@ -146,3 +146,30 @@ def export_csv(request):
     for i in transactions:
         writer.writerow([i['title'],i['amount'],i['category'],i['date'],i['notes']])
     return response
+
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def editIncome(request):
+    data=request.data
+    # print(data)
+    old_income=Income.objects.get(user=request.user,id=data['id'])
+    # old_category=Category.objects.get(id=old_income.category)
+    serializer=IncomeSerializer(old_income,many=False)
+    if old_income.category!=data['categoryName']:
+        category_obj,_=Category.objects.get_or_create(name=data['categoryName'])
+        old_income.category=category_obj
+    
+    old_income.source=data['source']
+    old_income.amount=data['amount']
+    old_income.date=data['date']
+
+    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
+    old_income.notes=date_str
+    old_income.notes=data['notes']
+    old_income.save()
+
+    new_income=Income.objects.get(user=request.user,id=data['id'])
+    income_serializer=IncomeSerializer(new_income,many=False)
+  
+    return Response({"status":"income updated","income":income_serializer.data})
