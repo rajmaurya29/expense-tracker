@@ -77,7 +77,7 @@ const IncomeScreen: React.FC = () => {
       if(!userSelector.userInfo) navigate("/login");
     })
   const rows: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
-  const rows_bar: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
+  // const rows_bar: IncomeRow[] = Array.isArray(incomeSelector) ? incomeSelector : [];
   const catNames: string[] = Array.isArray(categoryNameSelector) ? categoryNameSelector : [];
   const catFreqs: number[] = Array.isArray(categoryFrequencySelector) ? categoryFrequencySelector : [];
 
