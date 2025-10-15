@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -85,6 +86,8 @@ const ExpenseScreen: React.FC = () => {
     })
   // Modal state
   const [isModalOpen, setModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<ExpenseRow | null>(null);
+  
   const [draft, setDraft] = useState<DraftExpense>({
     title: "",
     amount: "",
@@ -202,7 +205,30 @@ const expenseColors = [
   const totalExpense = (Array.isArray(catFreqs) ? catFreqs : []).reduce((a, b) => a + b, 0);
 
   // Modal handlers
-  const openModal = () => setModalOpen(true);
+  // const openModal = () => setModalOpen(true);
+
+  const openModal = (item?: ExpenseRow) => {
+    if (item) {
+      setEditingExpense(item);
+      setDraft({
+        title: item.title || "",
+        amount: String(item.amount) || "",
+        category: item.categoryName || "",
+        notes: item.notes || "",
+        date: item.date || new Date().toISOString().slice(0, 10),
+      });
+    } else {
+      setEditingExpense(null);
+      setDraft({
+        title: "",
+        amount: "",
+        category: "",
+        notes: "",
+        date: new Date().toISOString().slice(0, 10),
+      });
+    }
+    setModalOpen(true);
+  };
   const closeModal = () => setModalOpen(false);
   const onChangeDraft = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -210,15 +236,41 @@ const expenseColors = [
     const { name, value } = e.target;
     setDraft((d) => ({ ...d, [name]: value }));
   };
-  const onSubmitDraft = (e: React.FormEvent) => {
+  const onSubmitDraft = async (e: React.FormEvent) => {
     e.preventDefault();
     const amt = Number(draft.amount);
     if (!draft.title.trim() || !draft.category.trim() || !draft.date || !isFinite(amt) || amt <= 0) {
       alert("Please fill Title, Category, valid Amount, and Date.");
       return;
     }
-    // Persist
-    dispatch(
+
+    if(editingExpense){
+       const updatedData = {
+        id: editingExpense.id,
+        title: draft.title,
+        amount: String(amt),
+        categoryName: draft.category,
+        notes: draft.notes,
+        date: draft.date,
+      };
+      // console.log(updatedData)
+ 
+
+      try {
+        // console.log(updatedData)
+         await axios.put(
+          `${API_URL}/expense/edit/`,
+          updatedData,        // Axios automatically handles JSON
+          {
+            withCredentials: true  // sends cookies / session info
+          }
+        );
+
+      } catch (error:any) {
+      }
+    }
+    else{
+      dispatch(
       createExpense({
         title: draft.title,
         amount: String(amt),
@@ -226,10 +278,13 @@ const expenseColors = [
         notes: draft.notes,
         date: draft.date,
       })
-    ).finally(() => {
+    )
+    }
+    // Persist
+    
       dispatch(expense());
       dispatch(categoryExpense());
-    });
+    
 
     closeModal();
     setDraft({
@@ -262,7 +317,7 @@ const expenseColors = [
             <p className="card-subtitle card-subtitle-lg">Expenses over time and share by category.</p>
           </div>
           <div className="actions-row">
-            <button className="btn btn-light btn-pill btn-lg" aria-label="Add expense" onClick={openModal}>
+            <button className="btn btn-light btn-pill btn-lg" aria-label="Add expense" onClick={()=>openModal()}>
               <span className="btn-icon btn-icon-lg">+</span> Add Expense
             </button>
           </div>
@@ -336,7 +391,8 @@ const expenseColors = [
           {/* Left column */}
           <ul className="list list-lg">
             {leftHalf.map((item) => (
-              <li key={item.id} className="list-row list-row-lg hoverable">
+              <li key={item.id} className="list-row list-row-lg hoverable" onClick={() => openModal(item)}
+                style={{ cursor: "pointer" }}>
                 <div className="list-left">
                   <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{  "🧾"}</span>
@@ -353,7 +409,9 @@ const expenseColors = [
                     className="icon-btn danger"
                     aria-label="Delete expense"
                     title="Delete"
-                    onClick={() => onDeleteExpense(item.id)}
+                    onClick={(e) =>{
+                      e.stopPropagation();
+                      onDeleteExpense(item.id)}}
                   >
                     <MdDelete size={18} />
                   </button>
@@ -367,7 +425,8 @@ const expenseColors = [
           {/* Right column */}
           <ul className="list list-lg">
             {rightHalf.map((item) => (
-              <li key={item.id} className="list-row list-row-lg hoverable">
+              <li key={item.id} className="list-row list-row-lg hoverable" onClick={() => openModal(item)}
+                style={{ cursor: "pointer" }}>
                 <div className="list-left">
                   <div className="dash-avatar" aria-hidden>
                         <span className="dash-emoji">{ "🧾"}</span>

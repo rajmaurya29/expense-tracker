@@ -150,3 +150,30 @@ def export_csv(request):
     for i in transactions:
         writer.writerow([i['title'],i['amount'],i['category'],i['date'],i['notes']])
     return response
+
+
+@api_view(["PUT"])
+@permission_classes([IsAuthenticated])
+def editExpense(request):
+    data=request.data
+    # print(data)
+    old_expense=Expense.objects.get(user=request.user,id=data['id'])
+    # old_category=Category.objects.get(id=old_income.category)
+    # serializer=ExpenseSerializer(old_expense,many=False)
+    if old_expense.category!=data['categoryName']:
+        category_obj,_=Category.objects.get_or_create(name=data['categoryName'])
+        old_expense.category=category_obj
+    
+    old_expense.title=data['title']
+    old_expense.amount=data['amount']
+    old_expense.date=data['date']
+
+    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
+    old_expense.notes=date_str
+    old_expense.notes=data['notes']
+    old_expense.save()
+
+    new_expense=Expense.objects.get(user=request.user,id=data['id'])
+    expense_serializer=ExpenseSerializer(new_expense,many=False)
+  
+    return Response({"status":"expense updated","expense":expense_serializer.data})

@@ -47,7 +47,6 @@ const inr = new Intl.NumberFormat(undefined, {
   maximumFractionDigits: 0,
 });
 const currency = (n: number) => inr.format(n);
-
 const niceMax = (v: number) => {
   if (!isFinite(v) || v <= 0) return 1;
   const magnitude = Math.pow(10, Math.floor(Math.log10(v)));
