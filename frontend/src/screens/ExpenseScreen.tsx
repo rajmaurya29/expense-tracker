@@ -259,7 +259,7 @@ const expenseColors = [
       try {
         // console.log(updatedData)
          await axios.put(
-          `${API_URL}/expense/edit/`,
+          `${API_URL}/expense/`,
           updatedData,        // Axios automatically handles JSON
           {
             withCredentials: true  // sends cookies / session info

@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL as string;
     export const createExpense=createAsyncThunk(
         "createExpense",async ({title,amount,categoryName,notes,date}:{title:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
             try{
-                const response= await axios.post(`${API_URL}/expense/create/`,{title,amount,category:categoryName,notes,date},
+                const response= await axios.post(`${API_URL}/expense/`,{title,amount,category:categoryName,notes,date},
                 { withCredentials:true}
                 )
                 return response.data;

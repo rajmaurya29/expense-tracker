@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 export const expense=createAsyncThunk(
     "expense",async (_,thunkAPI)=>{
         try{
-            const response= await axios.get(`${API_URL}/expense/get/`,
+            const response= await axios.get(`${API_URL}/expense/`,
                { "withCredentials":true}
             )
             // console.log(response.data)
