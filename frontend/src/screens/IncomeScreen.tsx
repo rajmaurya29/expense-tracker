@@ -252,7 +252,7 @@ const IncomeScreen: React.FC = () => {
 
       try {
          await axios.put(
-          `${API_URL}/income/edit/`,
+          `${API_URL}/income/`,
           updatedData,        // Axios automatically handles JSON
           {
             withCredentials: true  // sends cookies / session info

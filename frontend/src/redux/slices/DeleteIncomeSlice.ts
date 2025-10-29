@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 export const deleteIncome=createAsyncThunk(
     "deleteIncome",async (id:number,thunkAPI)=>{
         try{
-            const response= await axios.delete(`${API_URL}/income/delete/${id}`,
+            const response= await axios.delete(`${API_URL}/income/${id}`,
                { withCredentials:true}
             )
             return response.data;

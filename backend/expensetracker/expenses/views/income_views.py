@@ -13,73 +13,89 @@ from django.http import HttpResponse
 import csv 
 from datetime import datetime
 
-@api_view(['post'])
+@api_view(['POST','GET','PUT'])
 @permission_classes([IsAuthenticated])
-def create_income(request):
-    data=request.data
-    category,_=Category.objects.get_or_create(
-        name=data['category']
-    )
-    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
-    income=Income.objects.create(
-        user=request.user,
-        source=data['source'],
-        category=category,
-        amount=data['amount'],
-        notes=data['notes'],
-        date=date_str
+def income(request):
+    if request.method=='POST':
+        data=request.data
+        category,_=Category.objects.get_or_create(
+            name=data['category']
+        )
+        date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
+        income=Income.objects.create(
+            user=request.user,
+            source=data['source'],
+            category=category,
+            amount=data['amount'],
+            notes=data['notes'],
+            date=date_str
 
-        
-    )
-    serializer=IncomeSerializer(income,many=False)
-    return Response(serializer.data)
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_incomes(request):
-    category=request.query_params.get("category")
-    user=request.user
-    if category:
-        filtered_data=Income.objects.filter(
-        user=user,
-        category__name=category,
-    ).order_by("-date")
-    else:
-        filtered_data=Income.objects.filter(
+            
+        )
+        serializer=IncomeSerializer(income,many=False)
+        return Response(serializer.data)
+    
+    elif request.method=='GET':
+        category=request.query_params.get("category")
+        user=request.user
+        if category:
+            filtered_data=Income.objects.filter(
             user=user,
+            category__name=category,
         ).order_by("-date")
-    serializer=IncomeSerializer(filtered_data,many=True)
-    return Response(serializer.data)
+        else:
+            filtered_data=Income.objects.filter(
+                user=user,
+            ).order_by("-date")
+        serializer=IncomeSerializer(filtered_data,many=True)
+        return Response(serializer.data)
 
+    elif request.method=='PUT':
+            data=request.data
+            old_income=Income.objects.get(user=request.user,id=data['id'])
+            serializer=IncomeSerializer(old_income,many=False)
+            if old_income.category!=data['categoryName']:
+                category_obj,_=Category.objects.get_or_create(name=data['categoryName'])
+                old_income.category=category_obj
+            
+            old_income.source=data['source']
+            old_income.amount=data['amount']
+            old_income.date=data['date']
 
+            date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
+            old_income.notes=date_str
+            old_income.notes=data['notes']
+            old_income.save()
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_income(request,id):
-    # print(id)
-    try:
-        data=Income.objects.get(id=id)
-    except:
-        return Response({"detail":"failed to fetch income"},status=HTTP_400_BAD_REQUEST)
-    serializer=IncomeSerializer(data,many=False)
-    return Response(serializer.data)
-
-
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def delete_income(request,id):
-    user=request.user
-    try:
-        data_delete=Income.objects.get(
-            user=user,
-            id=id
-            )
+            new_income=Income.objects.get(user=request.user,id=data['id'])
+            income_serializer=IncomeSerializer(new_income,many=False)
         
-        Income.delete(data_delete)
-        return Response({"detail":"income deleted successfully"})
-    except:
-        return Response({"detail":"failed to delete data"})
+            return Response({"status":"income updated","income":income_serializer.data})
+    
+
+@api_view(['GET','DELETE'])
+@permission_classes([IsAuthenticated])
+def individual_income(request,id):
+    if request.method=='GET':
+        try:
+            data=Income.objects.get(id=id)
+        except:
+            return Response({"detail":"failed to fetch income"},status=HTTP_400_BAD_REQUEST)
+        serializer=IncomeSerializer(data,many=False)
+        return Response(serializer.data)
+
+    elif request.method=='DELETE':
+            user=request.user
+            try:
+                data_delete=Income.objects.get(
+                    user=user,
+                    id=id
+                    )
+                
+                Income.delete(data_delete)
+                return Response({"detail":"income deleted successfully"})
+            except:
+                return Response({"detail":"failed to delete data"})
 
 
 @api_view(['GET'])
@@ -87,18 +103,10 @@ def delete_income(request,id):
 def income_category(request):
     category=Category.objects.all()
     serializer1=CategorySerializer(category,many=True)
-
-    # ret=Income.objects.filter(
-        
-    # )
-    # value={}
     serializer_data=serializer1.data
-    # print(serializer_data)
     category_name=[]
     category_frequency=[]
     for i in serializer_data:
-        # print(i["name"])
-
         income=Income.objects.filter(
             user=request.user,
             category_id=i["id"])
@@ -109,10 +117,6 @@ def income_category(request):
             for i in income_serializer.data:
                 total+=float(i["amount"])
             category_frequency.append(total)
-        # value[i["name"]]=len(income_serializer.data)
-
-    # serializer=CategorySerializer(category,many=True)
-    # print(serializer)
     return Response({"category_name":category_name,"category_frequency":category_frequency})
 
 
@@ -147,29 +151,3 @@ def export_csv(request):
         writer.writerow([i['title'],i['amount'],i['category'],i['date'],i['notes']])
     return response
 
-
-@api_view(["PUT"])
-@permission_classes([IsAuthenticated])
-def editIncome(request):
-    data=request.data
-    # print(data)
-    old_income=Income.objects.get(user=request.user,id=data['id'])
-    # old_category=Category.objects.get(id=old_income.category)
-    serializer=IncomeSerializer(old_income,many=False)
-    if old_income.category!=data['categoryName']:
-        category_obj,_=Category.objects.get_or_create(name=data['categoryName'])
-        old_income.category=category_obj
-    
-    old_income.source=data['source']
-    old_income.amount=data['amount']
-    old_income.date=data['date']
-
-    date_str=datetime.strptime(data["date"], "%Y-%m-%d").date()
-    old_income.notes=date_str
-    old_income.notes=data['notes']
-    old_income.save()
-
-    new_income=Income.objects.get(user=request.user,id=data['id'])
-    income_serializer=IncomeSerializer(new_income,many=False)
-  
-    return Response({"status":"income updated","income":income_serializer.data})

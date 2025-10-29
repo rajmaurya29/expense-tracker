@@ -2,12 +2,10 @@ from django.urls import path
 from expenses.views import income_views
 
 urlpatterns = [
-    path('create/',income_views.create_income,name="create_income"),
-    path('get/',income_views.get_incomes,name='get_incomes'),
-    path('get/<int:id>',income_views.get_income,name='get_income'),
-    path('delete/<int:id>',income_views.delete_income,name='delete_income'),
+    path('',income_views.income,name="create_get_edit_income"),
+    path('<int:id>',income_views.individual_income,name='get_delete_income'),
     path('categoryIncome/',income_views.income_category,name='income_category'),
     path('transactions/',income_views.recentTransactionsIncome,name='recentTransactions'),
     path('transactions/csv/',income_views.export_csv,name='export-csv'),
-    path('edit/',income_views.editIncome,name='edit_income'),
+    
 ]
