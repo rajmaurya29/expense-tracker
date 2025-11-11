@@ -11,10 +11,11 @@ import DeleteExpenseSlice from './slices/DeleteExpenseSlice';
 import  CategoryExpenseSlice  from './slices/CategoryExpenseSlice';
 import TotalAmountSlice from './slices/TotalAmountSlice'
 import RecentTotalSlice from './slices/RecentTotalSlice'
-import  dashboardIncomes  from './slices/DashboardIncomeSlice';
+import  dashboardIncomeReducer  from './slices/DashboardIncomeSlice';
 import  dashboardExpenses  from './slices/DashboardExpenseSlice';
 import  recentTransactions  from './slices/RecentTransactionSlice';
 import  totalTransactions  from './slices/TotalTransactionSlice';
+import filterSlice from "./slices/filterSlice";
 
 export const store=configureStore({
     reducer:{
@@ -30,10 +31,11 @@ export const store=configureStore({
         categoryExpense:CategoryExpenseSlice,
         totalAmount:TotalAmountSlice,
         recentTotal:RecentTotalSlice,
-        dashboardIncome:dashboardIncomes,
+        dashboardIncome:dashboardIncomeReducer,
         dashboardExpense:dashboardExpenses,
         recentTransaction:recentTransactions,
-        totalTransaction:totalTransactions
+        totalTransaction:totalTransactions,
+        filter:filterSlice,
     }
 });
 

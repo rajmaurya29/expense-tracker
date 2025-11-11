@@ -12,5 +12,4 @@ urlpatterns = [
     path('transactions/csv/',user_views.export_csv,name='export-csv'),
     path('health/',user_views.health,name='health'),
     path('fetch/',user_views.fetchUser,name='fetchUser'),
-
 ]
