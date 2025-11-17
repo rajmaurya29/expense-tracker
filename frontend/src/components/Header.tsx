@@ -1,16 +1,57 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MdMenu } from "react-icons/md";
-import {  useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../redux/store";
-import { toggleSidebar } from "../redux/slices/SidebarSlice"
+import { toggleSidebar } from "../redux/slices/SidebarSlice";
 
-export interface HeaderProps {
-  
-  headerHeight?: number;
-}
+const Header: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
 
-const Header: React.FC<HeaderProps> = () => {
-    const dispatch=useDispatch<AppDispatch>();
+  const [open, setOpen] = useState(false);
+  const [customOpen, setCustomOpen] = useState(false);
+  const [label, setLabel] = useState("Last Month");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+
+  const panelRef = useRef<HTMLDivElement>(null);
+  const customRef = useRef<HTMLDivElement>(null);
+
+  // outside click close logic
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Close custom dialog
+      if (customOpen && customRef.current && !customRef.current.contains(target)) {
+        if (!fromDate && !toDate) setLabel("All");
+        setCustomOpen(false);
+      }
+
+      // Close dropdown
+      if (open && panelRef.current && !panelRef.current.contains(target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [customOpen, open, fromDate, toDate]);
+
+  const handleSelect = (value: string) => {
+    setLabel(value);
+    setOpen(false);
+
+    if (value === "Custom Range") setCustomOpen(true);
+    else setCustomOpen(false);
+  };
+
+  const applyCustomRange = () => {
+    if (!fromDate || !toDate) return;
+
+    setLabel(`Custom: ${fromDate} → ${toDate}`);
+    setCustomOpen(false);
+  };
+
   return (
     <header
       style={{
@@ -21,42 +62,184 @@ const Header: React.FC<HeaderProps> = () => {
         height: 55,
         display: "flex",
         alignItems: "center",
+        justifyContent: "space-between",
         background: "#fff",
         borderBottom: "1px solid #eee",
-        padding: "0 12px",
+        padding: "0 20px",
         zIndex: 300,
       }}
     >
-      <button
-        onClick={()=>dispatch(toggleSidebar())}
-        className="hamburger-btn"
-        aria-label="Toggle sidebar"
+      {/* LEFT SIDE: Menu + Title */}
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <button
+          onClick={() => dispatch(toggleSidebar())}
+          className="hamburger-btn"
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#222",
+            width: 40,
+            height: 40,
+            fontSize: 26,
+            display: "none",
+            cursor: "pointer",
+          }}
+        >
+          <MdMenu />
+        </button>
+
+        <span
+          style={{
+            fontWeight: 600,
+            fontSize: "1.35rem",
+            color: "#222",
+          }}
+        >
+          Expense Tracker
+        </span>
+      </div>
+
+      {/* RIGHT SIDE: Date Filter */}
+      <div
         style={{
-          background: "transparent",
-          border: "none",
-          color: "#222",
-          width: 40,
-          height: 40,
-          fontSize: 26,
-          display: "none", // hidden on desktop
+          position: "relative",
+          display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          zIndex: 310, // above overlay
-          marginRight: 8,
+          gap: 8,
+          marginRight:"20px"
         }}
       >
-        <MdMenu />
-      </button>
+        <span style={{ fontSize: 14, color: "#444" }}>Date:</span>
 
-      <span style={{ fontWeight: 600, fontSize: "1.35rem", color: "#222",marginLeft:30 }}>
-        Expense Tracker
-      </span>
+        <button
+          onClick={() => setOpen(!open)}
+          style={{
+            padding: "6px 12px",
+            borderRadius: 8,
+            border: "1px solid #ccc",
+            background: "#fafafa",
+            cursor: "pointer",
+            fontSize: 14,
+            fontWeight: 500,
+          }}
+        >
+          {label} ▼
+        </button>
+
+        {/* DROPDOWN */}
+        {open && (
+          <div
+            ref={panelRef}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 42,
+              width: 170,
+              background: "#fff",
+              borderRadius: 8,
+              boxShadow: "0px 2px 10px rgba(0,0,0,0.12)",
+              padding: "6px 0",
+              zIndex: 350,
+            }}
+          >
+            {["All", "Last Month", "Last 3 Months", "Custom Range"].map((opt) => (
+              <div
+                key={opt}
+                onClick={() => handleSelect(opt)}
+                style={{
+                  padding: "8px 14px",
+                  cursor: "pointer",
+                  fontSize: 14,
+                }}
+                onMouseEnter={(e) => ((e.target as HTMLElement).style.background = "#f2f2f2")}
+                onMouseLeave={(e) => ((e.target as HTMLElement).style.background = "white")}
+              >
+                {opt}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CUSTOM RANGE POPUP */}
+        {customOpen && (
+          <div
+            ref={customRef}
+            style={{
+              position: "absolute",
+              right: 0,
+              top: 42,
+              width: 240,
+              background: "#fff",
+              borderRadius: 10,
+              boxShadow: "0px 2px 14px rgba(0,0,0,0.15)",
+              padding: "14px",
+              zIndex: 360,
+            }}
+          >
+            <div style={{ marginBottom: 10, fontSize: 15, fontWeight: 600 }}>
+              Select Custom Range
+            </div>
+
+            <label style={{ fontSize: 13 }}>From</label>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "6px 8px",
+                marginBottom: 12,
+                borderRadius: 6,
+                border: "1px solid #ccc",
+                fontSize: 14,
+              }}
+            />
+
+            <label style={{ fontSize: 13 }}>To</label>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "6px 8px",
+                marginBottom: 14,
+                borderRadius: 6,
+                border: "1px solid #ccc",
+                fontSize: 14,
+              }}
+            />
+
+            <button
+              onClick={applyCustomRange}
+              style={{
+                width: "100%",
+                padding: "8px",
+                background: "#4b38f5",
+                color: "#fff",
+                borderRadius: 6,
+                border: "none",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 14,
+              }}
+            >
+              Apply
+            </button>
+          </div>
+        )}
+      </div>
 
       <style>
         {`
           @media (max-width: 768px) {
-            .hamburger-btn { display: inline-flex !important; }
+            .hamburger-btn {
+              display: inline-flex !important;
+            }
+
+            header {
+              padding: 0 14px;
+            }
           }
         `}
       </style>
@@ -65,3 +248,4 @@ const Header: React.FC<HeaderProps> = () => {
 };
 
 export default Header;
+//redeploy

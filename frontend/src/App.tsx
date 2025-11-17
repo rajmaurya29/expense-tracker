@@ -60,7 +60,7 @@ const Shell: React.FC = () => {
   ) :
         (
         <>  
-      <Header headerHeight={HEADER_HEIGHT} />
+      <Header  />
       <Sidebar
         
         headerHeight={HEADER_HEIGHT}
