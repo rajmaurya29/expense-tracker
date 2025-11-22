@@ -38,18 +38,20 @@ def expense(request):
 
     elif request.method=='GET':
         category=request.query_params.get("category")
+        fromDate=request.query_params.get("from")
+        toDate=request.query_params.get("to")
+        # print("from",fromDate)
         user=request.user
+        filtered_data=Expense.objects.filter(user=user)
         if category:
-            filtered_data=Expense.objects.filter(
-            user=user,
-            category__name=category,
-        ).order_by("-date")
-        else:
-            filtered_data=Expense.objects.filter(
-                user=user,
-            ).order_by("-date")
+            filtered_data=filtered_data.filter(category__name=category)
+        if fromDate and toDate:
+            filtered_data=filtered_data.filter(date__gte=fromDate,
+                date__lte=toDate)
+        filtered_data=filtered_data.order_by("-date")
         serializer=ExpenseSerializer(filtered_data,many=True)
         return Response(serializer.data)
+        
 
     elif request.method=='PUT':
         data=request.data
@@ -106,10 +108,18 @@ def expense_category(request):
     serializer_data=serializer1.data
     category_name=[]
     category_frequency=[]
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     for i in serializer_data:
         expense=Expense.objects.filter(
+
             user=request.user,
             category_id=i["id"])
+        if fromDate and toDate:
+            expense=expense.filter(
+                date__gte=fromDate,
+                date__lte=toDate
+            )
         expense_serializer=ExpenseSerializer(expense,many=True)
         if(len(expense_serializer.data)>0):
 
@@ -123,7 +133,15 @@ def expense_category(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recentTransactionsExpense(request):
-    expense=Expense.objects.filter(user=request.user).order_by("-date")[:5]
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
+    expense=Expense.objects.filter(user=request.user)
+    if fromDate and toDate:
+        expense=expense.filter(
+            date__gte=fromDate,
+            date__lte=toDate
+        )
+    expense=expense.order_by("-date")[:5]
     serializer=ExpenseSerializer(expense,many=True)
     return Response(serializer.data)
 
