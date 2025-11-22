@@ -55,6 +55,18 @@ const niceMax = (v: number) => {
 };
 
 const ExpenseScreen: React.FC = () => {
+
+    const labelSelector=useSelector((s:RootState)=>s.filter);
+      useEffect(()=>{
+        // if(labelSelector.label!='All'){
+        if(labelSelector.label!='Custom Range' || (labelSelector.label=='Custom Range' && labelSelector.from!=null)){
+            dispatch(expense());
+            dispatch(categoryExpense());}
+        // }
+      },[labelSelector])
+
+
+
     const navigate=useNavigate();
 
   const dispatch = useDispatch<AppDispatch>();

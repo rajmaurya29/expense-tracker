@@ -1,5 +1,7 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '../../../utils/api'
+import { getFilterParams } from '../../../utils/getFilterParams';
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 
@@ -7,8 +9,10 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 export const recentTransactions=createAsyncThunk(
     "recentTransaction",async (_,thunkAPI)=>{
         try{
-            const response =await axios.get<Txn[]>(`${API_URL}/users/transactions/?limit=10`, {
-          withCredentials: true,
+            const state:any=thunkAPI.getState();
+            const params=getFilterParams(state);
+            const response =await api.get<Txn[]>(`${API_URL}/users/transactions/?limit=10`, {
+          params
         });
             // console.log(response.data)
             return response.data;

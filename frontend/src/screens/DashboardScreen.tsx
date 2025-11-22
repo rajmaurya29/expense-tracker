@@ -101,6 +101,17 @@ const DashboardScreen: React.FC = () => {
   },[totalSelector])
 
 
+  //For dispatching data through useeffect for different labels or different date range.
+  const labelSelector=useSelector((s:RootState)=>s.filter);
+  useEffect(()=>{
+   if(labelSelector.label!='Custom Range' || (labelSelector.label=='Custom Range' && labelSelector.from!=null)){
+    dispatch(totalAmount());
+    dispatch(recentTotals());
+    dispatch(dashboardIncomes());
+    dispatch(dashboardExpenses());
+
+    }
+  },[labelSelector])
   
   useEffect(()=>{
     if(recenttotalSelector.length==0)

@@ -1,13 +1,17 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '../../../utils/api'
+import { getFilterParams } from '../../../utils/getFilterParams';
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 
 export const income=createAsyncThunk(
     "income",async (_,thunkAPI)=>{
         try{
-            const response= await axios.get(`${API_URL}/income/`,
-               { "withCredentials":true}
+            const state:any=thunkAPI.getState();
+            const params=getFilterParams(state);
+            const response= await api.get(`${API_URL}/income/`,
+               { params}
             )
             // console.log(response.data)
             return response.data;

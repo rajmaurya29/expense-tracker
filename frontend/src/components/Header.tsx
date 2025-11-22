@@ -3,13 +3,15 @@ import { MdMenu } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../redux/store";
 import { toggleSidebar } from "../redux/slices/SidebarSlice";
+import { setCustomRange, setFilterLabel } from "../redux/slices/filterSlice";
+
 
 const Header: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [open, setOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
-  const [label, setLabel] = useState("Last Month");
+  const [label, setLabel] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
 
@@ -38,18 +40,27 @@ const Header: React.FC = () => {
   }, [customOpen, open, fromDate, toDate]);
 
   const handleSelect = (value: string) => {
+    dispatch(setFilterLabel(value));
     setLabel(value);
     setOpen(false);
-
+    
     if (value === "Custom Range") setCustomOpen(true);
-    else setCustomOpen(false);
+    else{ setCustomOpen(false);
+      // dispatch(totalAmount());
+      // dispatch(dashboardIncomes());
+    }
   };
 
   const applyCustomRange = () => {
     if (!fromDate || !toDate) return;
 
     setLabel(`Custom: ${fromDate} → ${toDate}`);
+
     setCustomOpen(false);
+    // dispatch(totalAmount());
+    
+    dispatch(setCustomRange({from:fromDate,to:toDate}));
+    // dispatch(dashboardIncomes());
   };
 
   return (

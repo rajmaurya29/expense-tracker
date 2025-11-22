@@ -54,7 +54,18 @@ const niceMax = (v: number) => {
   return options.find((o) => o >= v) ?? Math.ceil(v / magnitude) * magnitude;
 };
 
+//refresh logic date range
 const IncomeScreen: React.FC = () => {
+  const labelSelector=useSelector((s:RootState)=>s.filter);
+        useEffect(()=>{
+          // if(labelSelector.label!='All'){
+          if(labelSelector.label!='Custom Range' || (labelSelector.label=='Custom Range' && labelSelector.from!=null)){
+              dispatch(income());
+              dispatch(categoryIncome());
+            }
+          // }
+        },[labelSelector])
+  
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 

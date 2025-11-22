@@ -1,5 +1,7 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '../../../utils/api'
+import { getFilterParams } from '../../../utils/getFilterParams';
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 // const loginInfoFromStorage=null;
@@ -8,8 +10,10 @@ const API_URL = import.meta.env.VITE_API_URL as string;
 export const loginUser=createAsyncThunk(
     "loginUser",async ({email,password}:{email:string,password:string},thunkAPI)=>{
         try{
-            const response= await axios.post(`${API_URL}/users/login/`,{"username":email,"password":password},
-               { withCredentials:true}
+            const state:any=thunkAPI.getState();
+            const params=getFilterParams(state);
+            const response= await api.post(`${API_URL}/users/login/`,{"username":email,"password":password},
+               { params}
             )
             return response.data;
         }
@@ -22,8 +26,10 @@ export const loginUser=createAsyncThunk(
 export const logoutUser=createAsyncThunk(
     "logoutUser",async (_,thunkAPI)=>{
         try{
-            const response= await axios.post(`${API_URL}/users/logout/`,{},
-               { withCredentials:true}
+            const state:any=thunkAPI.getState();
+            const params=getFilterParams(state);
+            const response= await api.post(`${API_URL}/users/logout/`,{},
+               {params}
             )
             return response.data;
         }
@@ -36,8 +42,10 @@ export const logoutUser=createAsyncThunk(
 export const fetchUser=createAsyncThunk(
     "fetchUser",async (_,thunkAPI)=>{
         try{
-            const response= await axios.get(`${API_URL}/users/fetch/`,
-               { withCredentials:true}
+            const state:any=thunkAPI.getState();
+            const params=getFilterParams(state);
+            const response= await api.get(`${API_URL}/users/fetch/`,
+               { params}
             )
             return response.data;
         }

@@ -1,13 +1,17 @@
 import { createSlice,createAsyncThunk } from '@reduxjs/toolkit'
-import axios from 'axios'
+// import axios from 'axios'
+import api from '../../../utils/api'
+import { getFilterParams } from '../../../utils/getFilterParams';
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 
     export const createExpense=createAsyncThunk(
         "createExpense",async ({title,amount,categoryName,notes,date}:{title:string,amount:string,categoryName:string,notes:string,date:string},thunkAPI)=>{
             try{
-                const response= await axios.post(`${API_URL}/expense/`,{title,amount,category:categoryName,notes,date},
-                { withCredentials:true}
+                const state:any=thunkAPI.getState();
+                const params=getFilterParams(state);
+                const response= await api.post(`${API_URL}/expense/`,{title,amount,category:categoryName,notes,date},
+                { params}
                 )
                 return response.data;
             }
