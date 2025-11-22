@@ -252,6 +252,16 @@ const Header: React.FC = () => {
               padding: 0 14px;
             }
           }
+            /* RESPONSIVE: shorten date label on small screens */
+          @media (max-width: 480px) {
+            button[style*="padding: 6px 12px"] {
+              max-width: 110px;            /* restrict width */
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
+
         `}
       </style>
     </header>
