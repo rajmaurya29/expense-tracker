@@ -37,16 +37,16 @@ def income(request):
     
     elif request.method=='GET':
         category=request.query_params.get("category")
+        fromDate=request.query_params.get("from")
+        toDate=request.query_params.get("to")
         user=request.user
+        filtered_data=Income.objects.filter(user=user)
         if category:
-            filtered_data=Income.objects.filter(
-            user=user,
-            category__name=category,
-        ).order_by("-date")
-        else:
-            filtered_data=Income.objects.filter(
-                user=user,
-            ).order_by("-date")
+            filtered_data=filtered_data.filter(category__name=category)
+        if fromDate and toDate:
+            filtered_data=filtered_data.filter(date__gte=fromDate,
+                date__lte=toDate)
+        filtered_data=filtered_data.order_by("-date")
         serializer=IncomeSerializer(filtered_data,many=True)
         return Response(serializer.data)
 
@@ -106,10 +106,17 @@ def income_category(request):
     serializer_data=serializer1.data
     category_name=[]
     category_frequency=[]
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     for i in serializer_data:
         income=Income.objects.filter(
             user=request.user,
             category_id=i["id"])
+        if fromDate and toDate:
+            income=income.filter(
+                date__gte=fromDate,
+                date__lte=toDate
+            )
         income_serializer=IncomeSerializer(income,many=True)
         total=0
         if(len(income_serializer.data)>0):
@@ -123,7 +130,15 @@ def income_category(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recentTransactionsIncome(request):
-    income=Income.objects.filter(user=request.user).order_by("-date")[:5]
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
+    income=Income.objects.filter(user=request.user)
+    if fromDate and toDate:
+        income=income.filter(
+            date__gte=fromDate,
+            date__lte=toDate
+        )
+    income=income.order_by("-date")[:5]
     serializer=IncomeSerializer(income,many=True)
     return Response(serializer.data)
 
