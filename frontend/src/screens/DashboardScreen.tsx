@@ -92,6 +92,8 @@ const DashboardScreen: React.FC = () => {
     if(!totalSelector)
     dispatch(totalAmount());
   }, [dispatch,totalSelector]);
+
+
   useEffect(()=>{
     if(totalSelector){
       setTotalBalance(String(totalSelector["total amount"]))
@@ -116,7 +118,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(()=>{
     if(recenttotalSelector.length==0)
     dispatch(recentTotals());
-  },[dispatch,recenttotalSelector])
+  },[dispatch])//removed recenttotalSelector from dependecy array
 
   useEffect(()=>{
     if(recenttotalSelector)
@@ -126,7 +128,7 @@ const DashboardScreen: React.FC = () => {
   useEffect(()=>{
     if(dashboardIncomeSelector.length==0)
     dispatch(dashboardIncomes());
-  },[dispatch,dashboardIncomeSelector])
+  },[dispatch])//removed recenttotalSelector from dependecy array
 
   useEffect(()=>{
     if(dashboardIncomeSelector)
@@ -136,7 +138,7 @@ const DashboardScreen: React.FC = () => {
    useEffect(()=>{
     if(dashboardExpenseSelector.length==0)
     dispatch(dashboardExpenses());
-  },[dispatch,dashboardExpenseSelector])
+  },[dispatch])//removed recenttotalSelector from dependecy array
 
   
   useEffect(()=>{
