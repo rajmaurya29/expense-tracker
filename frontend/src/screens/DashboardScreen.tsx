@@ -114,7 +114,7 @@ const DashboardScreen: React.FC = () => {
 
     }
   },[labelSelector])
-  
+  //just checking
   useEffect(()=>{
     if(recenttotalSelector.length==0)
     dispatch(recentTotals());

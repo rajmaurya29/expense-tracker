@@ -108,7 +108,13 @@ def logoutUser(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recentTransactions(request):
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     income=Income.objects.filter(user=request.user).order_by("-date")[:10]
+    # print(fromDate)
+    if fromDate and toDate:
+        print("working")
+        income=income.filter(date__gte=fromDate,date__lte=toDate)
     income_data=[]
     for i in income:
         income_data.append({
@@ -119,6 +125,8 @@ def recentTransactions(request):
             "notes":i.notes
         })
     expense=Expense.objects.filter(user=request.user).order_by("-date")[:10]
+    if fromDate and toDate:
+        expense=expense.filter(date__gte=fromDate,date__lte=toDate)
     expense_data=[]
     for i in expense:
         expense_data.append({
@@ -137,7 +145,11 @@ def recentTransactions(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recentTransactionsTotal(request):
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     income=Income.objects.filter(user=request.user).order_by("-date")
+    if fromDate and toDate:
+        income=income.filter(date__gte=fromDate,date__lte=toDate)
     income_data=[]
     for i in income:
         income_data.append({
@@ -148,6 +160,8 @@ def recentTransactionsTotal(request):
             "notes":i.notes
         })
     expense=Expense.objects.filter(user=request.user).order_by("-date")
+    if fromDate and toDate:
+        expense=expense.filter(date__gte=fromDate,date__lte=toDate)
     expense_data=[]
     for i in expense:
         expense_data.append({
@@ -165,11 +179,17 @@ def recentTransactionsTotal(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def total_detail(request):
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     income=Income.objects.filter(user=request.user)
+    if fromDate and toDate:
+        income=income.filter(date__gte=fromDate,date__lte=toDate)
     income_value=0
     for i in income:
         income_value+=i.amount
     expense=Expense.objects.filter(user=request.user)
+    if fromDate and toDate:
+        expense=expense.filter(date__gte=fromDate,date__lte=toDate)
     expense_value=0
     for i in expense:
         expense_value+=i.amount
@@ -179,8 +199,12 @@ def total_detail(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def recentTotal(request):
+    fromDate=request.query_params.get("from")
+    toDate=request.query_params.get("to")
     total=0
     income=Income.objects.filter(user=request.user).order_by("-date")
+    if fromDate and toDate:
+        income=income.filter(date__gte=fromDate,date__lte=toDate)
     income_data=[]
     for i in income:
         income_data.append({
@@ -188,6 +212,8 @@ def recentTotal(request):
             "date":i.date,
         })
     expense=Expense.objects.filter(user=request.user).order_by("-date")
+    if fromDate and toDate:
+        expense=expense.filter(date__gte=fromDate,date__lte=toDate)
     expense_data=[]
     for i in expense:
         expense_data.append({
