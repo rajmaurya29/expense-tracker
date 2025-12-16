@@ -23,7 +23,7 @@ const Shell: React.FC = () => {
   const [loader,setLoader]=useState(false);
   const location = useLocation();
   const dispatch=useDispatch<AppDispatch>();
-  const { theme, toggleTheme } = useTheme();
+  const {  toggleTheme } = useTheme();
 
   useEffect(() => {
   const loadUser = async () => {
