@@ -11,6 +11,9 @@ from rest_framework.status import *
 from expenses.models import *
 from django.http import HttpResponse
 import csv 
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -65,8 +68,9 @@ def fetchUser(request):
 @api_view(['POST'])
 def registerUser(request):
     data=request.data
-    # print(data)
+  
     try:
+        validate_password(data["password"])
         user=User.objects.create_user(
             first_name=data["name"],
             username=data["email"],
@@ -75,6 +79,9 @@ def registerUser(request):
         )   
         serializer=UserSerializer(user,many=False)
         return Response(serializer.data)
+    except ValidationError as e:
+        message={"message":e.messages}
+        return Response(message,status=HTTP_400_BAD_REQUEST)
     except:
         message={"message":"Invalid user or user already exist"}
         return Response(message,status=HTTP_400_BAD_REQUEST)

@@ -15,12 +15,46 @@ const SignUpScreen: React.FC = () => {
   const [confirm, setConfirm] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isFormValid, setIsFormValid] = useState(false);
+
     const dispatch=useDispatch<AppDispatch>();
     const userSelector=useSelector((s:RootState)=>s.userInfo)
     
       useEffect(()=>{
         if(userSelector.userInfo) navigate("/");
       },[userSelector])
+
+      const validateEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          setEmailError("Please enter a valid email address.");
+          return false;
+        }
+        setEmailError(null);
+        return true;
+      };
+    
+      const validatePassword = (password: string) => {
+        const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$&*])(?=.{8,})/;
+        if (!passwordRegex.test(password)) {
+          setPasswordError(
+            "Password must be at least 8 characters long, contain one uppercase letter, and one special character."
+          );
+          return false;
+        }
+        setPasswordError(null);
+        return true;
+      };
+
+      useEffect(() => {
+        const isEmailValid = validateEmail(email);
+        const isPasswordValid = validatePassword(password);
+        const arePasswordsMatching = password === confirm;
+        setIsFormValid(isEmailValid && isPasswordValid && arePasswordsMatching);
+      }, [email, password, confirm]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -87,9 +121,13 @@ const SignUpScreen: React.FC = () => {
               required
               placeholder="john@timetoprogram.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value)
+                validateEmail(e.target.value)
+              }}
             />
           </label>
+          {emailError && <div className="login-error">{emailError}</div>}
 
           <label className="login-label">
             Password
@@ -99,10 +137,15 @@ const SignUpScreen: React.FC = () => {
               required
               placeholder="••••••••"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={6}
+              onChange={(e) => {
+                setPassword(e.target.value)
+                validatePassword(e.target.value)
+              }}
+              minLength={8}
             />
           </label>
+          {passwordError && <div className="login-error">{passwordError}</div>}
+
 
           <label className="login-label">
             Confirm Password
@@ -113,7 +156,7 @@ const SignUpScreen: React.FC = () => {
               placeholder="••••••••"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              minLength={6}
+              minLength={8}
             />
           </label>
 
@@ -126,7 +169,7 @@ const SignUpScreen: React.FC = () => {
           <button
             type="submit"
             className={`login-button ${submitting ? "is-loading" : ""}`}
-            disabled={submitting}
+            disabled={submitting || !isFormValid}
             onMouseDown={(e) =>
               (e.currentTarget.style.transform = "translateY(1px)")
             }
