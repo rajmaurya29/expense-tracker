@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { MdMenu } from "react-icons/md";
+import { MdMenu, MdDarkMode } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../redux/store";
 import { toggleSidebar } from "../redux/slices/SidebarSlice";
 import { setCustomRange, setFilterLabel } from "../redux/slices/filterSlice";
 
 
-const Header: React.FC = () => {
+const Header: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   const [open, setOpen] = useState(false);
@@ -74,8 +74,8 @@ const Header: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "#fff",
-        borderBottom: "1px solid #eee",
+        background: "var(--header-bg)",
+        borderBottom: "1px solid var(--header-border)",
         padding: "0 20px",
         zIndex: 300,
       }}
@@ -88,7 +88,7 @@ const Header: React.FC = () => {
           style={{
             background: "transparent",
             border: "none",
-            color: "#222",
+            color: "var(--text-color)",
             width: 40,
             height: 40,
             fontSize: 26,
@@ -103,7 +103,7 @@ const Header: React.FC = () => {
           style={{
             fontWeight: 600,
             fontSize: "1.35rem",
-            color: "#222",
+            color: "var(--text-color)",
           }}
         >
           Expense Tracker
@@ -120,7 +120,21 @@ const Header: React.FC = () => {
           marginRight:"20px"
         }}
       >
-        <span style={{ fontSize: 14, color: "#444" }}>Date:</span>
+        <button
+          onClick={toggleTheme}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "var(--text-color)",
+            width: 40,
+            height: 40,
+            fontSize: 26,
+            cursor: "pointer",
+          }}
+        >
+          <MdDarkMode />
+        </button>
+        <span style={{ fontSize: 14, color: "var(--text-color)" }}>Date:</span>
 
         <button
           onClick={() => setOpen(!open)}
@@ -146,7 +160,7 @@ const Header: React.FC = () => {
               right: 0,
               top: 42,
               width: 170,
-              background: "#fff",
+              background: "var(--card-bg)",
               borderRadius: 8,
               boxShadow: "0px 2px 10px rgba(0,0,0,0.12)",
               padding: "6px 0",
@@ -161,9 +175,10 @@ const Header: React.FC = () => {
                   padding: "8px 14px",
                   cursor: "pointer",
                   fontSize: 14,
+                  color: "var(--text-color)"
                 }}
                 onMouseEnter={(e) => ((e.target as HTMLElement).style.background = "#f2f2f2")}
-                onMouseLeave={(e) => ((e.target as HTMLElement).style.background = "white")}
+                onMouseLeave={(e) => ((e.target as HTMLElement).style.background = "var(--card-bg)")}
               >
                 {opt}
               </div>
@@ -180,18 +195,18 @@ const Header: React.FC = () => {
               right: 0,
               top: 42,
               width: 240,
-              background: "#fff",
+              background: "var(--card-bg)",
               borderRadius: 10,
               boxShadow: "0px 2px 14px rgba(0,0,0,0.15)",
               padding: "14px",
               zIndex: 360,
             }}
           >
-            <div style={{ marginBottom: 10, fontSize: 15, fontWeight: 600 }}>
+            <div style={{ marginBottom: 10, fontSize: 15, fontWeight: 600, color: "var(--text-color)" }}>
               Select Custom Range
             </div>
 
-            <label style={{ fontSize: 13 }}>From</label>
+            <label style={{ fontSize: 13, color: "var(--text-color)" }}>From</label>
             <input
               type="date"
               value={fromDate}
@@ -206,7 +221,7 @@ const Header: React.FC = () => {
               }}
             />
 
-            <label style={{ fontSize: 13 }}>To</label>
+            <label style={{ fontSize: 13, color: "var(--text-color)" }}>To</label>
             <input
               type="date"
               value={toDate}

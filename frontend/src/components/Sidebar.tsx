@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     fontSize: "1rem",
     padding: "10px 14px",
     borderRadius: 8,
-    color: "#222",
+    color: "var(--text-color)",
   };
 const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.name);
   const user = { name: userName };
@@ -61,7 +61,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
           left: 0,
           width: sidebarWidth,
           height: `calc(100vh - ${headerHeight}px)`,
-          background: "#fff",
+          background: "var(--sidebar-bg)",
           boxShadow: "2px 0 6px rgba(0,0,0,0.08)",
           display: "flex",
           flexDirection: "column",
@@ -85,6 +85,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
             fontSize: 24,
             marginBottom: 8,
             display: "none", // hidden on desktop
+            color: "var(--text-color)",
           }}
           className="drawer-close-btn"
         >
@@ -104,7 +105,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
               marginBottom: 8,
             }}
           />
-          <div style={{ fontWeight: 600, color: "#222" }}>{user.name}</div>
+          <div style={{ fontWeight: 600, color: "var(--text-color)" }}>{user.name}</div>
         </div>
 
         {/* Nav */}
@@ -116,7 +117,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
                 style={({ isActive }) => ({
                   ...linkBase,
                   background: isActive ? "#8b5cf6" : "transparent",
-                  color: isActive ? "#fff" : "#222",
+                  color: isActive ? "#fff" : "var(--text-color)",
                 })}
               >
                 <MdDashboard size={20} /> Dashboard
@@ -128,7 +129,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
                 style={({ isActive }) => ({
                   ...linkBase,
                   background: isActive ? "#8b5cf6" : "transparent",
-                  color: isActive ? "#fff" : "#222",
+                  color: isActive ? "#fff" : "var(--text-color)",
                 })}
               >
                 <BiMoney size={20} /> Income
@@ -140,7 +141,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
                 style={({ isActive }) => ({
                   ...linkBase,
                   background: isActive ? "#8b5cf6" : "transparent",
-                  color: isActive ? "#fff" : "#222",
+                  color: isActive ? "#fff" : "var(--text-color)",
                 })}
               >
                 <BsCurrencyDollar size={20} /> Expense
@@ -152,7 +153,7 @@ const userName = useSelector((state: RootState) => state.userInfo?.userInfo?.nam
                 style={({ isActive }) => ({
                   ...linkBase,
                   background: isActive ? "#8b5cf6" : "transparent",
-                  color: isActive ? "#fff" : "#222",
+                  color: isActive ? "#fff" : "var(--text-color)",
                 })}
               >
                 <MdLogout size={20} /> Logout

@@ -12,6 +12,8 @@ import IncomeScreen from "./screens/IncomeScreen";
 import ExpenseScreen from "./screens/ExpenseScreen";
 import DashboardScreen from "./screens/DashboardScreen";
 import { fetchUser } from "./redux/slices/UserSlice";
+import { useTheme } from "./hooks/useTheme";
+
 const HEADER_HEIGHT = 54;
 const SIDEBAR_WIDTH = 260;
 
@@ -21,6 +23,8 @@ const Shell: React.FC = () => {
   const [loader,setLoader]=useState(false);
   const location = useLocation();
   const dispatch=useDispatch<AppDispatch>();
+  const { theme, toggleTheme } = useTheme();
+
   useEffect(() => {
   const loadUser = async () => {
     try {
@@ -60,7 +64,7 @@ const Shell: React.FC = () => {
   ) :
         (
         <>  
-      <Header  />
+      <Header toggleTheme={toggleTheme} />
       <Sidebar
         
         headerHeight={HEADER_HEIGHT}
@@ -73,7 +77,7 @@ const Shell: React.FC = () => {
           marginLeft: isDesktop ? SIDEBAR_WIDTH : 0,
           padding: "16px",
           minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
-          background: "#fafafc",
+          background: "var(--background-color)",
           transition: "margin 0.2s ease",
         }}
       >

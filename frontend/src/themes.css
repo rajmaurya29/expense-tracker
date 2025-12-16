@@ -1,0 +1,21 @@
+:root {
+  --background-color: #fff;
+  --text-color: #222;
+  --header-bg: #fff;
+  --header-border: #eee;
+  --sidebar-bg: #fff;
+  --sidebar-border: #eee;
+  --card-bg: #fff;
+  --card-border: #eee;
+}
+
+[data-theme='dark'] {
+  --background-color: #1a1a1a;
+  --text-color: #fff;
+  --header-bg: #2a2a2a;
+  --header-border: #444;
+  --sidebar-bg: #2a2a2a;
+  --sidebar-border: #444;
+  --card-bg: #2a2a2a;
+  --card-border: #444;
+}
