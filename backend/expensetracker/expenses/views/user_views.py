@@ -11,6 +11,7 @@ from rest_framework.status import *
 from expenses.models import *
 from django.http import HttpResponse
 import csv 
+from django.core.validators import validate_email
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
@@ -70,6 +71,7 @@ def registerUser(request):
     data=request.data
   
     try:
+        validate_email(data['email'])
         validate_password(data["password"])
         user=User.objects.create_user(
             first_name=data["name"],
