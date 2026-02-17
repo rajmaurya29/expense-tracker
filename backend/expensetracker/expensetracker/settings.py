@@ -15,6 +15,8 @@ from datetime import timedelta
 import dj_database_url
 import os
 from decouple import config
+from dotenv import load_dotenv
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -94,9 +96,9 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -217,3 +219,8 @@ CSRF_TRUSTED_ORIGINS = [
 # SESSION_COOKIE_SECURE = False   # Only because local dev is http
 # CSRF_COOKIE_SAMESITE = "None"
 # CSRF_COOKIE_SECURE = False
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL")
+FRONTEND_URL=os.environ.get("FRONTEND_URL")
+SENDGRID_API_KEY=os.environ.get("SENDGRID_API_KEY")
+EMAIL_TIMEOUT = 10
