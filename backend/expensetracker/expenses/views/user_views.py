@@ -112,7 +112,7 @@ def registerUser(request):
                 message=Mail(
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     to_emails=user.email,
-                    subject="Collab Notes verify email request",
+                    subject="Proshop verify email request",
                     html_content=html_content
                 )
                 sg = SendGridAPIClient(settings.SENDGRID_API_KEY)

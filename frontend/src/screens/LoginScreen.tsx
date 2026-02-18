@@ -71,6 +71,17 @@ const LoginScreen: React.FC = () => {
             />
           </label>
 
+          <div style={{ textAlign: "right", marginTop: "-8px", marginBottom: "12px" }}>
+            <button
+              type="button"
+              className="login-link"
+              onClick={() => navigate("/forgot-password")}
+              style={{ fontSize: "14px" }}
+            >
+              Forgot Password?
+            </button>
+          </div>
+
           {error && (
             <div role="alert" className="login-error">
               {error}

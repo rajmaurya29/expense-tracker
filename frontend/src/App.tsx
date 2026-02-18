@@ -11,6 +11,9 @@ import LogoutScreen from "./screens/LogoutScreen";
 import IncomeScreen from "./screens/IncomeScreen";
 import ExpenseScreen from "./screens/ExpenseScreen";
 import DashboardScreen from "./screens/DashboardScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import ResetPasswordScreen from "./screens/ResetPasswordScreen";
+import VerifyEmailScreen from "./screens/VerifyEmailScreen";
 import { fetchUser } from "./redux/slices/UserSlice";
 import { useTheme } from "./hooks/useTheme";
 
@@ -90,6 +93,9 @@ const Shell: React.FC = () => {
           <Route path="/expense" element={<ExpenseScreen/>} />
 
           <Route path="/signup" element={<SignUpScreen/>} />
+          <Route path="/forgot-password" element={<ForgotPasswordScreen/>} />
+          <Route path="/reset-password" element={<ResetPasswordScreen/>} />
+          <Route path="/verify-email" element={<VerifyEmailScreen/>} />
 
           
           <Route path="*" element={<h2>Not Found</h2>} />

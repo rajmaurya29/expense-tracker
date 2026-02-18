@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from "react";
-// import "./index.css"; // uses the same classes as the login screen
 import { useNavigate } from "react-router-dom";
-import { useDispatch,useSelector } from "react-redux";
-import type { RootState,AppDispatch } from "../redux/store";
-import { loginUser } from "../redux/slices/UserSlice";
 import axios from "axios";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -18,15 +14,9 @@ const SignUpScreen: React.FC = () => {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [success, setSuccess] = useState(false);
 
-    const dispatch=useDispatch<AppDispatch>();
-    const userSelector=useSelector((s:RootState)=>s.userInfo)
-    
-      useEffect(()=>{
-        if(userSelector.userInfo) navigate("/");
-      },[userSelector])
-
-      const validateEmail = (email: string) => {
+  const validateEmail = (email: string) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
           setEmailError("Please enter a valid email address.");
@@ -58,8 +48,7 @@ const SignUpScreen: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    // console.log("skld");
-    // const dispatch=useDispatch<AppDispatch>();
+    
     if (!name.trim()) {
       setError("Please enter your name.");
       return;
@@ -68,29 +57,46 @@ const SignUpScreen: React.FC = () => {
       setError("Passwords do not match.");
       return;
     }
-// console.log("skld");
+
     setSubmitting(true);
     try {
-      // Demo-only: simulate async signup
-      await new Promise((r) => setTimeout(r, 800));
-      try{  
-               await axios.post(`${API_URL}/users/register/`,{"name":name,"email":email,"password":password},{withCredentials:true})
-                // console.log(response.data);
-                dispatch(loginUser({"email":email,"password":password}))
-                
-            }
-            catch(error:any){
-                console.log(error.value)
-            }
-      console.log("Signup:", { name, email, password });
-    } catch (err: any) {  
-      setError(err?.message || "Signup failed. Please try again.");
+      const response = await axios.post(
+        `${API_URL}/users/register/`,
+        { name, email, password },
+        { withCredentials: true }
+      );
+      console.log(response.data.message);
+      setSuccess(true);
+    } catch (error: any) {
+      setError(
+        error?.response?.data?.message || "Signup failed. Please try again."
+      );
     } finally {
       setSubmitting(false);
-      // navigate('/');
-      
     }
   };
+
+  if (success) {
+    return (
+      <div className="login-page">
+        <div className="login-card">
+          <div className="login-header">
+            <h1 className="login-title">Check Your Email</h1>
+            <p className="login-subtitle">
+              We've sent a verification link to {email}. Please check your email and click the link to verify your account.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => navigate("/login")}
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="login-page">
