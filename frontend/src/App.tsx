@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "./redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "./redux/store";
 import { closeSidebar } from "./redux/slices/SidebarSlice"
 import LoginScreen from './screens/LoginScreen'
 import SignUpScreen from './screens/SignUpScreen'
@@ -27,6 +27,7 @@ const Shell: React.FC = () => {
   const location = useLocation();
   const dispatch=useDispatch<AppDispatch>();
   const {  toggleTheme } = useTheme();
+  const userInfo = useSelector((state: RootState) => state.userInfo.userInfo);
 
   useEffect(() => {
   const loadUser = async () => {
@@ -54,6 +55,9 @@ const Shell: React.FC = () => {
     dispatch(closeSidebar());
   }, [location.pathname,dispatch]);
 
+  // Check if user is authenticated
+  const isAuthenticated = !!userInfo;
+
   return (
     <>
       {
@@ -68,16 +72,17 @@ const Shell: React.FC = () => {
         (
         <>  
       <Header toggleTheme={toggleTheme} />
-      <Sidebar
-        
-        headerHeight={HEADER_HEIGHT}
-        sidebarWidth={SIDEBAR_WIDTH}
-      />
+      {isAuthenticated && (
+        <Sidebar
+          headerHeight={HEADER_HEIGHT}
+          sidebarWidth={SIDEBAR_WIDTH}
+        />
+      )}
 
       <main
         style={{
           marginTop: HEADER_HEIGHT,
-          marginLeft: isDesktop ? SIDEBAR_WIDTH : 0,
+          marginLeft: isAuthenticated && isDesktop ? SIDEBAR_WIDTH : 0,
           padding: "16px",
           minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
           background: "var(--background-color)",

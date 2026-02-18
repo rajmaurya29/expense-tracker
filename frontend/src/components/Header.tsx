@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MdMenu, MdDarkMode } from "react-icons/md";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../redux/store";
 import { toggleSidebar } from "../redux/slices/SidebarSlice";
 import { setCustomRange, setFilterLabel } from "../redux/slices/filterSlice";
 
 
 const Header: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const userInfo = useSelector((state: RootState) => state.userInfo.userInfo);
+  const isAuthenticated = !!userInfo;
 
   const [open, setOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
@@ -82,22 +84,24 @@ const Header: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
     >
       {/* LEFT SIDE: Menu + Title */}
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <button
-          onClick={() => dispatch(toggleSidebar())}
-          className="hamburger-btn"
-          style={{
-            background: "transparent",
-            border: "none",
-            color: "var(--text-color)",
-            width: 40,
-            height: 40,
-            fontSize: 26,
-            display: "none",
-            cursor: "pointer",
-          }}
-        >
-          <MdMenu />
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={() => dispatch(toggleSidebar())}
+            className="hamburger-btn"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text-color)",
+              width: 40,
+              height: 40,
+              fontSize: 26,
+              display: "none",
+              cursor: "pointer",
+            }}
+          >
+            <MdMenu />
+          </button>
+        )}
 
         <span
           style={{
@@ -134,25 +138,29 @@ const Header: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
         >
           <MdDarkMode />
         </button>
-        <span style={{ fontSize: 14, color: "var(--text-color)" }}>Date:</span>
+        {isAuthenticated && (
+          <>
+            <span style={{ fontSize: 14, color: "var(--text-color)" }}>Date:</span>
 
-        <button
-          onClick={() => setOpen(!open)}
-          style={{
-            padding: "6px 12px",
-            borderRadius: 8,
-            border: "1px solid #ccc",
-            background: "#fafafa",
-            cursor: "pointer",
-            fontSize: 14,
-            fontWeight: 500,
-          }}
-        >
-          {label} ▼
-        </button>
+            <button
+              onClick={() => setOpen(!open)}
+              style={{
+                padding: "6px 12px",
+                borderRadius: 8,
+                border: "1px solid #ccc",
+                background: "#fafafa",
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 500,
+              }}
+            >
+              {label} ▼
+            </button>
+          </>
+        )}
 
         {/* DROPDOWN */}
-        {open && (
+        {isAuthenticated && open && (
           <div
             ref={panelRef}
             style={{
@@ -187,7 +195,7 @@ const Header: React.FC<{ toggleTheme: () => void }> = ({ toggleTheme }) => {
         )}
 
         {/* CUSTOM RANGE POPUP */}
-        {customOpen && (
+        {isAuthenticated && customOpen && (
           <div
             ref={customRef}
             style={{
