@@ -112,7 +112,7 @@ def registerUser(request):
                 message=Mail(
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     to_emails=user.email,
-                    subject="Proshop verify email request",
+                    subject="Expense Tracker verify email request",
                     html_content=html_content
                 )
                 sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
@@ -343,7 +343,7 @@ def forgot_password(request):
             message=Mail(
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to_emails=user.email,
-                subject="Proshop password reset request",
+                subject="Expense Tracker password reset request",
                 html_content=html_content
             )
             sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
