@@ -129,9 +129,13 @@ def registerUser(request):
     except ValidationError as e:
         message={"message":e.messages}
         return Response(message,status=HTTP_400_BAD_REQUEST)
-    except:
-        message={"message":"Invalid user or user already exist"}
-        return Response(message,status=HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print("Exception:", e)
+        traceback.print_exc()
+        return Response(
+            {"message": str(e)},
+            status=HTTP_400_BAD_REQUEST
+        )
 
 @api_view(['POST'])
 def logoutUser(request):
