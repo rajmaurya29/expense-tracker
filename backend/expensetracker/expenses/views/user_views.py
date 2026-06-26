@@ -65,6 +65,7 @@ def health(request):
 
 @api_view(['GET'])
 def fetchUser(request):
+    print("1")
     try:
         user=request.user
         if not user.is_authenticated:
