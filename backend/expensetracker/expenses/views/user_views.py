@@ -21,6 +21,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -108,17 +109,17 @@ def registerUser(request):
             )
             
             try:
-                # print(settings.DEFAULT_FROM_EMAIL,"\n",settings.SENDGRID_API_KEY)
-                message=Mail(
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to_emails=user.email,
+                message = EmailMultiAlternatives(
                     subject="Expense Tracker verify email request",
-                    html_content=html_content
+                    body="Please verify your email.",  # Fallback for email clients that don't support HTML
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[user.email],
                 )
-                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-                sg.send(message)
+
+                message.attach_alternative(html_content, "text/html")
+                message.send()
             except Exception as e:
-                print("sendgrid error:",e)
+                print("Brevo error:",e)
         return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
     except ValidationError as e:
         message={"message":e.messages}
