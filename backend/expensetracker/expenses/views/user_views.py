@@ -22,6 +22,7 @@ from sendgrid.helpers.mail import Mail
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
+import traceback
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -119,7 +120,11 @@ def registerUser(request):
                 message.attach_alternative(html_content, "text/html")
                 message.send()
             except Exception as e:
-                print("Brevo error:",e)
+                traceback.print_exc()
+                return Response(
+                    {"message": str(e)},
+                    status=HTTP_400_BAD_REQUEST
+                )
         return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
     except ValidationError as e:
         message={"message":e.messages}
