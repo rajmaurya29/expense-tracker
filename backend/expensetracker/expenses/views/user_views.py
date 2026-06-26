@@ -74,10 +74,15 @@ def fetchUser(request):
         return Response(userSerializer.data)
     except:
         return Response({"message":"Invalid User"},status=HTTP_400_BAD_REQUEST)
-    
+
+import logging
+
+
+
 @api_view(['POST'])
 def registerUser(request):
-    print("REGISTER VIEW CALLED")
+    logger = logging.getLogger(__name__)
+    logger.info("FETCH USER CALLED")
     data=request.data
   
     try:
@@ -93,41 +98,45 @@ def registerUser(request):
         # return Response(serializer.data)
         user.is_active=False
         user.save()
-        email=data.get("email")
-
-        user=User.objects.filter(email=email).first()
-
-        if user:
-            
-            uid=urlsafe_base64_encode(force_bytes(user.pk))
-            token=token_generator.make_token(user)
-            # print("uid "+uid)
-            email_url=(
-                f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
+        return Response(
+                {"message": "User created successfully"},
+                status=HTTP_201_CREATED
             )
-            # print("flag 3")
-            html_content=render_to_string(
-                "users/verify_email.html",
-                {"email_url":email_url}
-            )
-            
-            try:
-                message = EmailMultiAlternatives(
-                    subject="Expense Tracker verify email request",
-                    body="Please verify your email.",  # Fallback for email clients that don't support HTML
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[user.email],
-                )
+        # email=data.get("email")
 
-                message.attach_alternative(html_content, "text/html")
-                message.send()
-            except Exception as e:
-                traceback.print_exc()
-                return Response(
-                    {"message": str(e)},
-                    status=HTTP_400_BAD_REQUEST
-                )
-        return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
+        # user=User.objects.filter(email=email).first()
+
+        # if user:
+            
+        #     uid=urlsafe_base64_encode(force_bytes(user.pk))
+        #     token=token_generator.make_token(user)
+        #     # print("uid "+uid)
+        #     email_url=(
+        #         f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
+        #     )
+        #     # print("flag 3")
+        #     html_content=render_to_string(
+        #         "users/verify_email.html",
+        #         {"email_url":email_url}
+        #     )
+            
+        #     try:
+        #         message = EmailMultiAlternatives(
+        #             subject="Expense Tracker verify email request",
+        #             body="Please verify your email.",  # Fallback for email clients that don't support HTML
+        #             from_email=settings.DEFAULT_FROM_EMAIL,
+        #             to=[user.email],
+        #         )
+
+        #         message.attach_alternative(html_content, "text/html")
+        #         message.send()
+        #     except Exception as e:
+        #         traceback.print_exc()
+        #         return Response(
+        #             {"message": str(e)},
+        #             status=HTTP_400_BAD_REQUEST
+        #         )
+        # return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
     except ValidationError as e:
         message={"message":e.messages}
         return Response(message,status=HTTP_400_BAD_REQUEST)
