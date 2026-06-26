@@ -76,6 +76,7 @@ def fetchUser(request):
     
 @api_view(['POST'])
 def registerUser(request):
+    print("REGISTER VIEW CALLED")
     data=request.data
   
     try:
