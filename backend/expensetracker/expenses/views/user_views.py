@@ -21,8 +21,6 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from django.template.loader import render_to_string
 from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
-import traceback
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -65,7 +63,6 @@ def health(request):
 
 @api_view(['GET'])
 def fetchUser(request):
-    print("1")
     try:
         user=request.user
         if not user.is_authenticated:
@@ -74,15 +71,9 @@ def fetchUser(request):
         return Response(userSerializer.data)
     except:
         return Response({"message":"Invalid User"},status=HTTP_400_BAD_REQUEST)
-
-import logging
-
-
-
+    
 @api_view(['POST'])
 def registerUser(request):
-    logger = logging.getLogger(__name__)
-    logger.info("FETCH USER CALLED")
     data=request.data
   
     try:
@@ -98,55 +89,43 @@ def registerUser(request):
         # return Response(serializer.data)
         user.is_active=False
         user.save()
-        return Response(
-                {"message": "User created successfully"},
-                status=HTTP_201_CREATED
+        email=data.get("email")
+
+        user=User.objects.filter(email=email).first()
+
+        if user:
+            
+            uid=urlsafe_base64_encode(force_bytes(user.pk))
+            token=token_generator.make_token(user)
+            # print("uid "+uid)
+            email_url=(
+                f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
             )
-        # email=data.get("email")
-
-        # user=User.objects.filter(email=email).first()
-
-        # if user:
+            # print("flag 3")
+            html_content=render_to_string(
+                "users/verify_email.html",
+                {"email_url":email_url}
+            )
             
-        #     uid=urlsafe_base64_encode(force_bytes(user.pk))
-        #     token=token_generator.make_token(user)
-        #     # print("uid "+uid)
-        #     email_url=(
-        #         f"{settings.FRONTEND_URL}/verify-email?uid={uid}&token={token}"
-        #     )
-        #     # print("flag 3")
-        #     html_content=render_to_string(
-        #         "users/verify_email.html",
-        #         {"email_url":email_url}
-        #     )
-            
-        #     try:
-        #         message = EmailMultiAlternatives(
-        #             subject="Expense Tracker verify email request",
-        #             body="Please verify your email.",  # Fallback for email clients that don't support HTML
-        #             from_email=settings.DEFAULT_FROM_EMAIL,
-        #             to=[user.email],
-        #         )
-
-        #         message.attach_alternative(html_content, "text/html")
-        #         message.send()
-        #     except Exception as e:
-        #         traceback.print_exc()
-        #         return Response(
-        #             {"message": str(e)},
-        #             status=HTTP_400_BAD_REQUEST
-        #         )
-        # return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
+            try:
+                # print(settings.DEFAULT_FROM_EMAIL,"\n",settings.SENDGRID_API_KEY)
+                message=Mail(
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to_emails=user.email,
+                    subject="Expense Tracker verify email request",
+                    html_content=html_content
+                )
+                sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
+                sg.send(message)
+            except Exception as e:
+                print("sendgrid error:",e)
+        return Response({"message":"Verify email sent"},status=HTTP_200_OK)       
     except ValidationError as e:
         message={"message":e.messages}
         return Response(message,status=HTTP_400_BAD_REQUEST)
-    except Exception as e:
-        print("Exception:", e)
-        traceback.print_exc()
-        return Response(
-            {"message": str(e)},
-            status=HTTP_400_BAD_REQUEST
-        )
+    except:
+        message={"message":"Invalid user or user already exist"}
+        return Response(message,status=HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def logoutUser(request):
